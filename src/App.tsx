@@ -62,6 +62,7 @@ export const App = () => (
               <Input placeholder="message" />
             </InputGroup>
           </Stack> */}  
+          <Spacer minH="200px"/>
         </VStack>
       </Grid>
     </Box>

@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 
-export function SendMessagePane() {
+export function SendMessageTab() {
     return  (
         // <Container width="container.md">
             <VStack spacing={2.5}>
