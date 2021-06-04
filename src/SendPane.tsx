@@ -14,7 +14,7 @@ import React from "react";
 
 export function SendMessagePane() {
     return  (
-        <Container width="container.md">
+        // <Container width="container.md">
             <VStack spacing={2.5}>
                 <InputGroup size="sm">
                     <InputLeftAddon 
@@ -33,6 +33,6 @@ export function SendMessagePane() {
                 resize="vertical"
                 />
             </VStack>
-        </Container>
+        // </Container>
     )
 }

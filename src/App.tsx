@@ -8,15 +8,16 @@ import {
   Code,
   Grid,
   Heading,
+  Spacer,
   InputGroup,
   Stack,
   Input,
   InputLeftAddon,
   theme,
-} from "@chakra-ui/react"
-import { SendMessagePane } from "./SendPane"
-import { ColorModeSwitcher } from "./ColorModeSwitcher"
-import { Logo } from "./Logo"
+} from "@chakra-ui/react";
+import { ColorModeSwitcher } from "./ColorModeSwitcher";
+import { Logo } from "./Logo";
+import { EmailUI } from "./EmailUI";
 
 // export const App = () => (
 //   <ChakraProvider theme={theme}>
@@ -47,14 +48,14 @@ export const App = () => (
     <Box textAlign="center">
       <Grid minH="100vh" p={3}>
         <ColorModeSwitcher justifySelf="flex-end"/>
-        <VStack spacing={8}>
-          <Heading fontsize="2xl">
-            S ◎ L 2 S ◎ L
+        <VStack spacing={20}>
+          <Heading size="4xl" justifySelf="top" marginBottom="-50px">
+              S ◎ L 2 S ◎ L
           </Heading>
-          <Text fontSize="1l">
+          <Text fontSize="md">
             Secure messaging on the Solana blockchain
           </Text>
-          <SendMessagePane />
+          <EmailUI />
           {/* <Stack spacing={4}>
             <InputGroup>
               <InputLeftAddon children="Send" />
