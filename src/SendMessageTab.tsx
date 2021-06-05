@@ -6,8 +6,7 @@ import {
     Container, 
     InputLeftAddon,
     Text,
-    Flex,
-    Spacer,
+    Button,
     HStack
 } from "@chakra-ui/react";
 import React from "react";
@@ -43,9 +42,12 @@ export function SendMessageTab(props: SendMessageTabProps) {
                 onChange={props.handleMessageChange}
             />
             <Container>
-                <Text fontSize="sm" align="left" color="gray.500" flex="1" marginLeft="-12px">
-                    Estimated Fee: {props.textMessage.length} fee + {props.estimatedCommission} commission SOL
-                </Text>
+                <HStack marginLeft="-12px" marginRight="-12px">
+                    <Text fontSize="sm" align="left" color="gray.500" flex="1" >
+                        Estimated Fee: {props.textMessage.length} fee + {props.estimatedCommission} commission SOL
+                    </Text>
+                    <Button rounded="lg" size="sm">Pay</Button>
+                </HStack>
             </Container>
         </VStack>
     )

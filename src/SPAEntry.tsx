@@ -10,12 +10,10 @@ import {
     Grid,
     Heading,
     Spacer,
-    InputGroup,
-    Stack,
-    Input,
-    InputLeftAddon,
+    Button,
     theme,
 } from "@chakra-ui/react";
+import { AtSignIcon } from '@chakra-ui/icons';
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import { Logo } from "./Logo";
 import { EmailUI } from "./EmailUI";
@@ -27,7 +25,11 @@ export function SPAEntry() {
   return (
     <Box textAlign="center">
       <Grid minH="100vh" p={3}>
-        <ColorModeSwitcher justifySelf="flex-end"/>
+        <Box justifySelf="flex-end">
+            {/* Todo(ngundotra): replace w metamask icon */}
+            <Button size="sm"><AtSignIcon size="md"/></Button>
+            <ColorModeSwitcher />
+        </Box>
         <VStack spacing={20}>
           <Heading size="4xl" justifySelf="top" marginBottom="-50px">
               S ◎ L 2 S ◎ L

@@ -45,7 +45,9 @@ export function EmailUI(props: EmailUIProps) {
                                 estimatedFeeUSD={1.0}
                                 estimatedCommission={1.0}
                                 estimatedCommissionUSD={1.0}
-                                {...props}
+                                handleMessageChange={props.handleMessageChange}
+                                textMessage={props.textMessage}
+                                // or just {...props}
                             />
                         </Collapse>
                     </TabPanel>
