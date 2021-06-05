@@ -16,7 +16,12 @@ import {
 import { SendMessageTab } from "./SendMessageTab";
 import { isJsxOpeningElement } from "typescript";
 
-export function EmailUI() {
+type EmailUIProps = {
+    textMessage: string,
+    handleMessageChange?: any,
+}
+
+export function EmailUI(props: EmailUIProps) {
     // const {isOpen, onToggle} = useDisclosure()
     const [tabIndex, setTabIndex] = React.useState(0)
     const sendOpen = (tabIndex === 0)
@@ -35,7 +40,13 @@ export function EmailUI() {
                 <TabPanels>
                     <TabPanel>
                         <Collapse animateOpacity={true} in={sendOpen}>
-                            <SendMessageTab />
+                            <SendMessageTab 
+                                estimatedFee={1} 
+                                estimatedFeeUSD={1.0}
+                                estimatedCommission={1.0}
+                                estimatedCommissionUSD={1.0}
+                                {...props}
+                            />
                         </Collapse>
                     </TabPanel>
                     <TabPanel>
