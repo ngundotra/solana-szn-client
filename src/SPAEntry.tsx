@@ -44,25 +44,27 @@ export function SPAEntry() {
 
   return (
     <Box textAlign="center">
-      <Grid minH="100vh" p={3}>
         <Box justifySelf="flex-end">
             {/* Todo(ngundotra): replace w metamask icon */}
             <SolanaWallet />
             <ColorModeSwitcher />
         </Box>
-        <VStack spacing={10}>
+        <Box marginTop="100px">
             <Heading size="4xl" justifySelf="top" marginBottom="-30px">
                     S ◎ L 2 S ◎ L
             </Heading>
+        </Box>
+        <Box marginTop="50px">
             <Text fontSize="md">
                 Secure messaging on the Solana blockchain
             </Text>
+        </Box>
+        <Box marginTop="50px">
             <EmailUI 
                 textMessage={appState.sendState.textMessage} 
                 handleMessageChange={handleMessage}
             />
-        </VStack>
-      </Grid>
+        </Box>
     </Box>
   )
 }
