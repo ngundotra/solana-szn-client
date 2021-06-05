@@ -14,6 +14,7 @@ import {
     TabPanels,
 } from "@chakra-ui/react";
 import { SendMessageTab } from "./SendMessageTab";
+import { ReadMessageTab } from "./ReadMessageTab";
 import { isJsxOpeningElement } from "typescript";
 
 type EmailUIProps = {
@@ -53,7 +54,7 @@ export function EmailUI(props: EmailUIProps) {
                     </TabPanel>
                     <TabPanel>
                         <Collapse animateOpacity={true} in={readOpen}>
-                            <Text>To be composed</Text>
+                            <ReadMessageTab address="" />
                         </Collapse>
                     </TabPanel>
                 </TabPanels>

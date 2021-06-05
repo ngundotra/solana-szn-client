@@ -13,21 +13,21 @@ import {
     Button,
     theme,
 } from "@chakra-ui/react";
-import { AtSignIcon } from '@chakra-ui/icons';
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import { Logo } from "./Logo";
 import { EmailUI } from "./EmailUI";
+import { SolanaWallet } from "./SolanaWallet";
 
 export function SPAEntry() {
   const [value, setValue] = React.useState("")
-  const handleMessage = (event) => setValue(event.target.value)
+  const handleMessage = (e) => setValue(e.target.value)
 
   return (
     <Box textAlign="center">
       <Grid minH="100vh" p={3}>
         <Box justifySelf="flex-end">
             {/* Todo(ngundotra): replace w metamask icon */}
-            <Button size="sm"><AtSignIcon size="md"/></Button>
+            <SolanaWallet />
             <ColorModeSwitcher />
         </Box>
         <VStack spacing={20}>
