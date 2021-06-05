@@ -23,8 +23,42 @@ type ReadMessageTabProps = {
     address: string, // idk, probably get with DOM?
 }
 
-export function ReadMessageTab(prop: ReadMessageTabProps) {
+type SolMessageFields = {
+    fromAddress: string,
+    message: string,
+    timeSent: string,
+}
 
+export function ReadMessageTab(prop: ReadMessageTabProps) {
+    const messageData = [
+        { 
+            fromAddress: "0xRickAstley",
+            message: "Never going to give you up...",
+            timeSent: "Yesterday"
+        },
+        {
+            fromAddress: "0xDefinitelyRick",
+            message: "Never going to let you down...",
+            timeSent: "Yesterday"
+        },
+        {
+            fromAddress: "0xNotNoah",
+            message: "..or hurt you..",
+            timeSent: "Yesterday"
+        },
+    ];
+    function renderMessageData(messages: Array<SolMessageFields>) {
+        return messages.map((solMessage, index) => {
+            const {fromAddress, message, timeSent} = solMessage;
+            return (
+                <Tr key={index}>
+                    <Td>{fromAddress}</Td>
+                    <Td>{message}</Td>
+                    <Td>{timeSent}</Td>
+                </Tr>
+            )
+        })
+    }
     return (
         <VStack spacing={4}>
             <Table variant="striped">
@@ -36,21 +70,7 @@ export function ReadMessageTab(prop: ReadMessageTabProps) {
                     </Tr>
                 </Thead>
                 <Tbody>
-                    <Tr>
-                        <Td>0xRickAstley</Td>
-                        <Td>Never going to give you up...</Td>
-                        <Td>Yesterday</Td>
-                    </Tr>
-                    <Tr>
-                        <Td>0xDefinitelyRick</Td>
-                        <Td>Never going to let you down...</Td>
-                        <Td>Yesterday</Td>
-                    </Tr>
-                    <Tr paddingBottom="10px">
-                        <Td>0xNotNoah</Td>
-                        <Td>..or hurt you..</Td>
-                        <Td>Yesterday</Td>
-                    </Tr>
+                    {renderMessageData(messageData)}
                 </Tbody>
             </Table>
             <Spacer minHeight="20px"/>
