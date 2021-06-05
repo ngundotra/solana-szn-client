@@ -1,3 +1,4 @@
+import * as React from "react";
 import { 
     Textarea,
     Input,
@@ -7,9 +8,9 @@ import {
     InputLeftAddon,
     Text,
     Button,
-    HStack
+    HStack,
 } from "@chakra-ui/react";
-import React from "react";
+import { RecipientBox } from "./RecipientBox";
 
 type SendMessageTabProps = {
     textMessage: string,
@@ -24,26 +25,12 @@ type SendMessageTabProps = {
 // estimatedCommissionUSD: number,
 
 export function SendMessageTab(props: SendMessageTabProps) {
-    function validateRecipientAddress(address: string) {
-        console.log("Recipient address is: ", address);
-    }
-
     return  (
         <VStack spacing={4}>
-            <InputGroup size="sm">
-                <InputLeftAddon 
-                    rounded="lg"
-                    children="check address"
-                    onClick={() => validateRecipientAddress(props.recipientAddress)}
-                />
-                <Input
-                    flex="1"
-                    fontSize="sm"
-                    placeholder="recipient address"
-                    value={props.recipientAddress}
-                    onChange={props.handleRecipientChange}
-                /> 
-            </InputGroup>
+            <RecipientBox 
+                recipientAddress={props.recipientAddress}
+                handleRecipientChange={props.handleRecipientChange}
+            />
             <Textarea 
                 rounded="lg"
                 placeholder="m e s s a g e"

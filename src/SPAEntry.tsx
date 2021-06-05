@@ -3,20 +3,16 @@ import * as React from "react"
 import {
     Box,
     Text,
-    VStack,
+    // VStack,
     // Code,
     // Link,
-    Grid,
-    SimpleGrid,
     Heading,
-    Spacer,
-    StatHelpText,
 } from "@chakra-ui/react";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import { EmailUI, EmailUIProps } from "./EmailUI";
 import { SolanaWallet } from "./SolanaWallet";
 import { Wallet } from "@project-serum/sol-wallet-adapter";
-import { signInWithSollet } from "./SolanaWallet.ts";
+import { signInWithSollet } from "./Wallet";
 
 export type AppState = {
     walletState: Wallet,
