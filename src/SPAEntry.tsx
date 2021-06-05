@@ -16,8 +16,9 @@ import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import { EmailUI, EmailUIProps } from "./EmailUI";
 import { SolanaWallet } from "./SolanaWallet";
 import { Wallet } from "@project-serum/sol-wallet-adapter";
+import { signInWithSollet } from "./SolanaWallet.ts";
 
-type AppState = {
+export type AppState = {
     walletState: Wallet,
     sendState: {
         textMessage: string,
@@ -42,11 +43,13 @@ export function SPAEntry() {
     setAppState(newState)
   }
 
+  const attachWallet = () => signInWithSollet(appState, setAppState);
+
   return (
     <Box textAlign="center">
         <Box justifySelf="flex-end">
             {/* Todo(ngundotra): replace w metamask icon */}
-            <SolanaWallet />
+            <SolanaWallet handleClick={attachWallet} />
             <ColorModeSwitcher />
         </Box>
         <Box marginTop="100px">
