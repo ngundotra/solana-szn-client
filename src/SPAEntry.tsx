@@ -1,26 +1,46 @@
 import * as React from "react"
 
 import {
-    ChakraProvider,
     Box,
     Text,
-    Link,
     VStack,
-    Code,
+    // Code,
+    // Link,
     Grid,
+    SimpleGrid,
     Heading,
     Spacer,
-    Button,
-    theme,
+    StatHelpText,
 } from "@chakra-ui/react";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
-import { Logo } from "./Logo";
-import { EmailUI } from "./EmailUI";
+import { EmailUI, EmailUIProps } from "./EmailUI";
 import { SolanaWallet } from "./SolanaWallet";
+import { Wallet } from "@project-serum/sol-wallet-adapter";
+
+type AppState = {
+    walletState: Wallet,
+    sendState: {
+        textMessage: string,
+    }
+}
 
 export function SPAEntry() {
-  const [value, setValue] = React.useState("")
-  const handleMessage = (e) => setValue(e.target.value)
+  const [appState, setAppState] = React.useState({
+    sendState: {
+        textMessage: "",
+    },
+    walletState: null,
+  })
+
+  const handleMessage = (e) => {
+    const newState: AppState = {
+        sendState: {
+            textMessage: e.target.value,
+        },
+        walletState: appState.walletState,
+    }
+    setAppState(newState)
+  }
 
   return (
     <Box textAlign="center">
@@ -30,15 +50,17 @@ export function SPAEntry() {
             <SolanaWallet />
             <ColorModeSwitcher />
         </Box>
-        <VStack spacing={20}>
-          <Heading size="4xl" justifySelf="top" marginBottom="-50px">
-              S ◎ L 2 S ◎ L
-          </Heading>
-          <Text fontSize="md">
-            Secure messaging on the Solana blockchain
-          </Text>
-          <EmailUI textMessage={value} handleMessageChange={handleMessage}/>
-          <Spacer minH="200px"/>
+        <VStack spacing={10}>
+            <Heading size="4xl" justifySelf="top" marginBottom="-30px">
+                    S ◎ L 2 S ◎ L
+            </Heading>
+            <Text fontSize="md">
+                Secure messaging on the Solana blockchain
+            </Text>
+            <EmailUI 
+                textMessage={appState.sendState.textMessage} 
+                handleMessageChange={handleMessage}
+            />
         </VStack>
       </Grid>
     </Box>

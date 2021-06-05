@@ -1,16 +1,15 @@
-import { Tab } from "@chakra-ui/tabs";
 import * as React from "react"
 import {
-    Box,
     Text,
     VStack,
     HStack,
     Spacer,
     Button,
+    Container,
+    Circle,
 
     // Table for reading messages
     Table,
-    Tfoot,
     Tr,
     Td,
     Thead,
@@ -18,6 +17,7 @@ import {
     Tbody,
     TableCaption,
 } from "@chakra-ui/react";
+import { RepeatIcon, SmallAddIcon } from "@chakra-ui/icons";
 
 type ReadMessageTabProps = {
     address: string, // idk, probably get with DOM?
@@ -28,7 +28,6 @@ export function ReadMessageTab(prop: ReadMessageTabProps) {
     return (
         <VStack spacing={4}>
             <Table variant="striped">
-                <TableCaption>Your Email Messages</TableCaption>
                 <Thead>
                     <Tr>
                         <Th>From</Th>
@@ -54,15 +53,25 @@ export function ReadMessageTab(prop: ReadMessageTabProps) {
                     </Tr>
                 </Tbody>
             </Table>
-            <HStack align="center">
-                <Button size="sm">
-                    +
-                </Button>
-                <Text>
-                    Add more addresses
-                </Text>
-                <Spacer />
-            </HStack>
+            <Spacer minHeight="20px"/>
+            <Container>
+                <HStack align="center" spacing={3}>
+                    <Circle size="35px" overflow="hidden">
+                        <Button>
+                            <SmallAddIcon />
+                        </Button> 
+                    </Circle>
+                    <Text>
+                        Add more addresses
+                    </Text>
+                    <Spacer />
+                    <Circle size="35px" overflow="hidden">
+                        <Button>
+                            <RepeatIcon />
+                        </Button> 
+                    </Circle>
+                </HStack>
+            </Container>
         </VStack>
     )
 }

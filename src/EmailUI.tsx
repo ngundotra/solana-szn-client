@@ -2,10 +2,8 @@ import * as React from "react"
 import {
     // Formatting / sizing
     Container,
-    Text,
     // Animation
     Collapse,
-    useDisclosure,
     // Rendering tabs
     Tab,
     Tabs,
@@ -15,11 +13,10 @@ import {
 } from "@chakra-ui/react";
 import { SendMessageTab } from "./SendMessageTab";
 import { ReadMessageTab } from "./ReadMessageTab";
-import { isJsxOpeningElement } from "typescript";
 
-type EmailUIProps = {
+export type EmailUIProps = {
     textMessage: string,
-    handleMessageChange?: any,
+    handleMessageChange: any,
 }
 
 export function EmailUI(props: EmailUIProps) {
@@ -41,11 +38,7 @@ export function EmailUI(props: EmailUIProps) {
                 <TabPanels>
                     <TabPanel>
                         <Collapse animateOpacity={true} in={sendOpen}>
-                            <SendMessageTab 
-                                estimatedFee={1} 
-                                estimatedFeeUSD={1.0}
-                                estimatedCommission={1.0}
-                                estimatedCommissionUSD={1.0}
+                            <SendMessageTab
                                 handleMessageChange={props.handleMessageChange}
                                 textMessage={props.textMessage}
                                 // or just {...props}

@@ -12,13 +12,14 @@ import {
 import React from "react";
 
 type SendMessageTabProps = {
-    estimatedFee: number,
-    estimatedCommission: number,
-    estimatedFeeUSD: number,
-    estimatedCommissionUSD: number,
     textMessage: string,
     handleMessageChange: any,
 }
+
+// estimatedFee: number,
+// estimatedCommission: number,
+// estimatedFeeUSD: number,
+// estimatedCommissionUSD: number,
 
 export function SendMessageTab(props: SendMessageTabProps) {
     return  (
@@ -44,7 +45,7 @@ export function SendMessageTab(props: SendMessageTabProps) {
             <Container>
                 <HStack marginLeft="-12px" marginRight="-12px">
                     <Text fontSize="sm" align="left" color="gray.500" flex="1" >
-                        Estimated Fee: {props.textMessage.length} fee + {props.estimatedCommission} commission SOL
+                        Estimated Fee: {props.textMessage.length} fee + {1} commission SOL
                     </Text>
                     <Button rounded="lg" size="sm">Pay</Button>
                 </HStack>
