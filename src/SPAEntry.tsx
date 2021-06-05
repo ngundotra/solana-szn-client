@@ -22,6 +22,7 @@ export type AppState = {
     walletState: Wallet,
     sendState: {
         textMessage: string,
+        recipientAddress: string,
     }
 }
 
@@ -29,6 +30,7 @@ export function SPAEntry() {
   const [appState, setAppState] = React.useState({
     sendState: {
         textMessage: "",
+        recipientAddress: "",
     },
     walletState: null,
   })
@@ -37,6 +39,18 @@ export function SPAEntry() {
     const newState: AppState = {
         sendState: {
             textMessage: e.target.value,
+            recipientAddress: appState.sendState.recipientAddress,
+        },
+        walletState: appState.walletState,
+    }
+    setAppState(newState)
+  }
+
+  const handleRecipientChange = (e) => {
+    const newState: AppState = {
+        sendState: {
+            textMessage: appState.sendState.textMessage,
+            recipientAddress: e.target.value,
         },
         walletState: appState.walletState,
     }
@@ -66,6 +80,8 @@ export function SPAEntry() {
             <EmailUI 
                 textMessage={appState.sendState.textMessage} 
                 handleMessageChange={handleMessage}
+                recipientAddress={appState.sendState.recipientAddress}
+                handleRecipientChange={handleRecipientChange}
             />
         </Box>
     </Box>

@@ -14,6 +14,8 @@ import React from "react";
 type SendMessageTabProps = {
     textMessage: string,
     handleMessageChange: any,
+    recipientAddress: string,
+    handleRecipientChange: any,
 }
 
 // estimatedFee: number,
@@ -22,16 +24,24 @@ type SendMessageTabProps = {
 // estimatedCommissionUSD: number,
 
 export function SendMessageTab(props: SendMessageTabProps) {
+    function validateRecipientAddress(address: string) {
+        console.log("Recipient address is: ", address);
+    }
+
     return  (
         <VStack spacing={4}>
             <InputGroup size="sm">
                 <InputLeftAddon 
                     rounded="lg"
-                    children="check address" />
+                    children="check address"
+                    onClick={() => validateRecipientAddress(props.recipientAddress)}
+                />
                 <Input
                     flex="1"
                     fontSize="sm"
                     placeholder="recipient address"
+                    value={props.recipientAddress}
+                    onChange={props.handleRecipientChange}
                 /> 
             </InputGroup>
             <Textarea 

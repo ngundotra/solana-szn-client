@@ -17,6 +17,8 @@ import { ReadMessageTab } from "./ReadMessageTab";
 export type EmailUIProps = {
     textMessage: string,
     handleMessageChange: any,
+    recipientAddress: string,
+    handleRecipientChange: any,
 }
 
 export function EmailUI(props: EmailUIProps) {
@@ -39,8 +41,10 @@ export function EmailUI(props: EmailUIProps) {
                     <TabPanel>
                         <Collapse animateOpacity={true} in={sendOpen}>
                             <SendMessageTab
-                                handleMessageChange={props.handleMessageChange}
                                 textMessage={props.textMessage}
+                                handleMessageChange={props.handleMessageChange}
+                                recipientAddress={props.recipientAddress}
+                                handleRecipientChange={props.handleRecipientChange}
                                 // or just {...props}
                             />
                         </Collapse>
