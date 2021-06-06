@@ -1,16 +1,16 @@
 import * as React from "react";
 import { 
     Textarea,
-    Input,
-    InputGroup,
     VStack,
     Container, 
-    InputLeftAddon,
     Text,
+    Alert,
     Button,
     HStack,
+    useToast,
 } from "@chakra-ui/react";
 import { RecipientBox } from "./RecipientBox";
+import { payForMessage, payForSolBox } from "./SolanaUtils";
 
 type SendMessageTabProps = {
     textMessage: string,
@@ -25,6 +25,8 @@ type SendMessageTabProps = {
 // estimatedCommissionUSD: number,
 
 export function SendMessageTab(props: SendMessageTabProps) {
+    const toast = useToast();
+
     return  (
         <VStack spacing={4}>
             <RecipientBox 
@@ -44,7 +46,40 @@ export function SendMessageTab(props: SendMessageTabProps) {
                     <Text fontSize="sm" align="left" color="gray.500" flex="1" >
                         Estimated Fee: {props.textMessage.length} fee + {1} commission SOL
                     </Text>
-                    <Button rounded="lg" size="sm">Pay</Button>
+                    <Button 
+                        rounded="lg" 
+                        size="sm"
+                        onClick={() => {
+                            payForMessage(props.textMessage, props.recipientAddress).then(
+                                (success) => {
+                                    if (!success) {
+                                        toast({
+                                            position: "top",
+                                            render: () => (
+                                                <Alert rounded="lg" bg="red.400">
+                                                    <Container>
+                                                    <HStack>
+                                                        <Text>No solBox configured</Text>
+                                                        <Button 
+                                                            rounded="xl" 
+                                                            justifySelf="flex-end"
+                                                            onClick={()=>payForSolBox}
+                                                        >
+                                                            Fix
+                                                        </Button>
+                                                    </HStack>
+                                                    </Container>
+                                                </Alert>
+                                            )
+                                        })
+                                    } else {
+                                        console.log("paid successfully");
+                                    }
+                                }
+                            )
+                    }}>
+                        Pay
+                    </Button>
                 </HStack>
             </Container>
         </VStack>

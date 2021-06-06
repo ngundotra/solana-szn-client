@@ -47,6 +47,7 @@ export function ReadMessageTab(prop: ReadMessageTabProps) {
             timeSent: "Yesterday"
         },
     ];
+
     function renderMessageData(messages: Array<SolMessageFields>) {
         return messages.map((solMessage, index) => {
             const {fromAddress, message, timeSent} = solMessage;
@@ -59,6 +60,7 @@ export function ReadMessageTab(prop: ReadMessageTabProps) {
             )
         })
     }
+    
     return (
         <VStack spacing={4}>
             <Table variant="striped">
