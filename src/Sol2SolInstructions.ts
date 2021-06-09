@@ -134,7 +134,13 @@ export const FixedSolMessageLayout: typeof BufferLayout.Structure = BufferLayout
     BufferLayout.u32('msgSize'),
 ]);
 
-export function decodeSolBoxState(buffer: Buffer): SolBox {
+export function decodeSolBoxState(buffer: Buffer): SolBox | undefined {
+    let tag = buffer[0];
+    console.log("[decode]Tag is: ", tag);
+    if (tag === 0) {
+        return undefined;
+    }
+    buffer = buffer.slice(1);
     let state: typeof SolBoxLayout = SolBoxLayout.decode(buffer);
     console.log(state.numSpots);
     console.log(state.numInUse);
@@ -156,14 +162,20 @@ async function getMinBalanceForSolBox(): Promise<number> {
     );
 }
 
+var cachedMinBalanceForMessageLength = new Map<number,number>();
+
 export async function getMinBalanceForMessage(message: string): Promise<number> {
-    return await getDevConnection().getMinimumBalanceForRentExemption(
+    if (cachedMinBalanceForMessageLength.has(message.length)) {
+        return cachedMinBalanceForMessageLength.get(message.length)!;
+    }
+    let newBalance = await getDevConnection().getMinimumBalanceForRentExemption(
         FixedSolMessageLayout.span + message.length
     );
+    cachedMinBalanceForMessageLength.set(message.length, newBalance);
+    return newBalance;
 }
 
 export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
-    //todo(ngundotra): fill this with legimate brainpower
     const connection = getDevConnection();
     const balanceNeeded = await getMinBalanceForSolBox();
     console.log(`balance needed is: ~${(balanceNeeded / LAMPORTS_PER_SOL)* 40} USD`);

@@ -49,7 +49,8 @@ export async function checkForInbox(wallet: Wallet): Promise<Array<SolBox>> {
     //     return [];
     // }
     console.log(`[checkForInbox]Found ${solBoxIds.length} inboxes for ${wallet.publicKey}`);
-    return solBoxIds.map((ledgerData: LedgerAccountData) => decodeSolBoxState(ledgerData.account.data));
+    let possibleSolBoxes = solBoxIds.map((ledgerData: LedgerAccountData) => decodeSolBoxState(ledgerData.account.data));
+    return possibleSolBoxes.filter((solBox) => solBox !== undefined);
 }
 
 type LedgerAccountData = {
