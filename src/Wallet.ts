@@ -1,6 +1,7 @@
 import Wallet from '@project-serum/sol-wallet-adapter';
 import { AppState } from "./SPAEntry";
-import { checkForInbox } from './SolanaUtils';
+import { checkForInbox, getDevConnection } from './SolanaUtils';
+import SolBox from './Sol2SolInstructions';
 
 export async function signInWithSollet(state: AppState, setState: (arg0: Object) => void) {
     // Todo(ngundotra): throw spinner on this page when sollet pops up
@@ -12,11 +13,33 @@ export async function signInWithSollet(state: AppState, setState: (arg0: Object)
     await wallet.connect();
     console.log("Signed in!\n");
 
-    setState({
-        walletState: wallet,
-        sendState: state.sendState,
-    })
+    let connection = getDevConnection();
+    let balance = await connection.getBalance(wallet.publicKey);
+    console.log(`[signInWithSollet]Wallet has balance: ${balance}`);
+    if (balance === undefined || balance === null) {
+        balance = -1;
+    }
 
-    let solBoxIds = await checkForInbox(wallet);
-    console.log(`Found ${solBoxIds.length} solboxes: ${solBoxIds}`);
+    let newState = {
+        walletState: {
+            wallet: wallet,
+            balance: balance,
+        },
+        solState: state.solState,
+        sendState: state.sendState,
+    };
+    setState(newState);
+
+    checkForInbox(wallet).then(
+        (solBoxes: Array<SolBox>) => {
+            console.log(`Found ${solBoxes.length} solboxes belonging to ${wallet.publicKey}`);
+            setState({
+                walletState: newState.walletState,
+                sendState: newState.sendState,
+                solState: {
+                    solBoxes: solBoxes,
+                }
+            });
+        }
+    );
 }

@@ -3,6 +3,8 @@ import * as React from "react"
 import {
     Box,
     Text,
+    HStack,
+    Spacer,
     // VStack,
     // Code,
     // Link,
@@ -13,9 +15,16 @@ import { EmailUI, EmailUIProps } from "./EmailUI";
 import { SolanaWallet } from "./SolanaWallet";
 import { Wallet } from "@project-serum/sol-wallet-adapter";
 import { signInWithSollet } from "./Wallet";
+import { SolBox } from "./Sol2SolInstructions";
 
 export type AppState = {
-    walletState: Wallet,
+    walletState: {
+        wallet: Wallet,
+        balance: number,
+    },
+    solState: {
+        inboxes: Array<SolBox>,
+    }
     sendState: {
         textMessage: string,
         recipientAddress: string,
@@ -28,7 +37,13 @@ export function SPAEntry() {
         textMessage: "",
         recipientAddress: "",
     },
-    walletState: null,
+    solState: {
+        inboxes: Array<SolBox>(),
+    },
+    walletState: { 
+        wallet: null,
+        balance: -1,
+    },
   })
 
   const handleMessage = (e) => {
@@ -37,6 +52,7 @@ export function SPAEntry() {
             textMessage: e.target.value,
             recipientAddress: appState.sendState.recipientAddress,
         },
+        solState: appState.solState,
         walletState: appState.walletState,
     }
     setAppState(newState)
@@ -48,6 +64,7 @@ export function SPAEntry() {
             textMessage: appState.sendState.textMessage,
             recipientAddress: e.target.value,
         },
+        solState: appState.solState,
         walletState: appState.walletState,
     }
     setAppState(newState)
@@ -57,10 +74,15 @@ export function SPAEntry() {
 
   return (
     <Box textAlign="center">
-        <Box justifySelf="flex-end">
-            {/* Todo(ngundotra): replace w metamask icon */}
-            <SolanaWallet handleClick={attachWallet} />
-            <ColorModeSwitcher />
+        <Box>
+            <HStack>
+                <Spacer />
+                <HStack>
+                <SolanaWallet walletBalance={appState.walletState.balance} handleClick={attachWallet} />
+                <ColorModeSwitcher />
+                </HStack>
+                <Spacer />
+            </HStack>
         </Box>
         <Box marginTop="100px">
             <Heading size="4xl" justifySelf="top" marginBottom="-30px">

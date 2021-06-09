@@ -10,6 +10,7 @@ import {
     Transaction,
     TransactionInstruction,
     SYSVAR_RENT_PUBKEY,
+    LAMPORTS_PER_SOL,
     sendAndConfirmTransaction
 } from '@solana/web3.js';
 import type {
@@ -124,7 +125,7 @@ export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
     const balanceNeeded = await connection.getMinimumBalanceForRentExemption(
         SolBoxLayout.span,
     );
-    console.log(`balance needed is: ~${(balanceNeeded * 0.000000001)* 40} USD`);
+    console.log(`balance needed is: ~${(balanceNeeded / LAMPORTS_PER_SOL)* 40} USD`);
     const accountInfo = await connection.getAccountInfo(wallet.publicKey);
     console.log("Found walletInfo: ", accountInfo);
     if (accountInfo?.lamports < balanceNeeded) {

@@ -38,15 +38,15 @@ export async function checkForEmailAddress(address: string): Promise<boolean> {
 
 export async function checkForInbox(wallet: Wallet): Promise<Array<PublicKey>> {
     let solBoxIds = await filterSolBoxesFor(wallet.publicKey);
-    if (solBoxIds.length < 1) {
-        let inboxAddress = await createSolBox(wallet);
-        if (inboxAddress != wallet.publicKey) {
-            console.log(`[checkForInbox]Created new solbox for ${wallet.publicKey} @ ${inboxAddress}`);
-            return [inboxAddress];
-        }
-        console.log(`[checkForInbox]Failed to create solbox for ${wallet.publicKey}`);
-        return [];
-    }
+    // if (solBoxIds.length < 1) {
+    //     let inboxAddress = await createSolBox(wallet);
+    //     if (inboxAddress !== wallet.publicKey) {
+    //         console.log(`[checkForInbox]Created new solbox for ${wallet.publicKey} @ ${inboxAddress}`);
+    //         return [inboxAddress];
+    //     }
+    //     console.log(`[checkForInbox]Failed to create solbox for ${wallet.publicKey}`);
+    //     return [];
+    // }
     console.log(`[checkForInbox]Found ${solBoxIds.length} inboxes for ${wallet.publicKey}`);
     return solBoxIds.map((ledgerData: LedgerAccountData) => ledgerData.pubkey);
 }
