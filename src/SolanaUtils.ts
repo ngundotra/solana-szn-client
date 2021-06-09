@@ -78,42 +78,12 @@ export async function payForMessage(message: string, toAddress: string): Promise
     if (inboxAddress.length < 1) {
         console.log("Routing to create solBoxAddress");
         // inboxAddress = await payForSolBox();
-        await payForSolBox();
+        // await payForSolBox();
         return false;
     } 
     return true;
-    // else {
-    //     try {
-    //         let inboxPubkey = new PublicKey(inboxAddress);
-    //         let cluster = 'devnet';
-    //         let connection = new Connection(clusterApiUrl(cluster));
-    //         connection.getAccountInfo(inboxPubkey).then(
-    //             (accountInfo) => console.log("Found inbox with: ", accountInfo),
-    //         );
-    //         return true;
-    //     } catch (error) {
-    //         console.error(error);
-    //         return false;
-    //     }
-    // }
 }
 
-export async function payForSolBox() {
-    let newSolBoxKeypair = new Keypair();
-    let connection = getDevConnection();
-    let transaction = new Transaction();
-    transaction = transaction.add(
-        SystemProgram.createAccount({
-            fromPubkey: newSolBoxKeypair.publicKey,
-            newAccountPubkey: newSolBoxKeypair.publicKey,
-            lamports: 10000,
-            space: 10000,
-            programId: newSolBoxKeypair.publicKey,
-        }),
-    )
-
-    return new Keypair();
-}
 
 export async function getProgramInfo(connection: Connection): Promise<AccountInfo<Buffer>> {
     // Taken from deployment log

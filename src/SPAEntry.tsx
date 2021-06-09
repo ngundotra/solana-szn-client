@@ -18,15 +18,17 @@ import { signInWithSollet } from "./Wallet";
 import { SolBox } from "./Sol2SolInstructions";
 
 export type AppState = {
-    walletState: {
-        wallet: Wallet,
-        balance: number,
-    },
+    walletState: WalletState,
     solState: SolState,
     sendState: {
         textMessage: string,
         recipientAddress: string,
     }
+}
+
+export type WalletState = {
+    wallet: Wallet,
+    balance: number,
 }
 
 export type SolState = {
@@ -103,6 +105,7 @@ export function SPAEntry() {
                 recipientAddress={appState.sendState.recipientAddress}
                 handleRecipientChange={handleRecipientChange}
                 solState={appState.solState}
+                walletState={appState.walletState}
             />
         </Box>
     </Box>

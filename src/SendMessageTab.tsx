@@ -10,17 +10,17 @@ import {
     useToast,
 } from "@chakra-ui/react";
 import { RecipientBox } from "./RecipientBox";
-import { payForMessage, payForSolBox } from "./SolanaUtils";
-import { SolBox, getNumberOfFreeSlots } from "./Sol2SolInstructions";
+import { payForMessage } from "./SolanaUtils";
+import { createSolBox, getNumberOfFreeSlots } from "./Sol2SolInstructions";
+import {SolState, WalletState } from "./SPAEntry";
 
 type SendMessageTabProps = {
     textMessage: string,
     handleMessageChange: any,
     recipientAddress: string,
     handleRecipientChange: any,
-    solState: {
-        solBoxes: Array<SolBox>,
-    }
+    solState: SolState,
+    walletState: WalletState,
 }
 
 // estimatedFee: number,
@@ -96,34 +96,7 @@ export function SendMessageTab(props: SendMessageTabProps) {
                         rounded="lg" 
                         size="sm"
                         onClick={() => {
-                            payForMessage(props.textMessage, props.recipientAddress).then(
-                                (success) => {
-                                    if (!success) {
-                                        toast({
-                                            position: "top",
-                                            isClosable: true,
-                                            render: () => (
-                                                <Alert rounded="lg" bg="red.400">
-                                                    <Container>
-                                                    <HStack>
-                                                        <Text>No solBox configured</Text>
-                                                        <Button 
-                                                            rounded="xl" 
-                                                            justifySelf="flex-end"
-                                                            onClick={()=>payForSolBox}
-                                                        >
-                                                            Fix
-                                                        </Button>
-                                                    </HStack>
-                                                    </Container>
-                                                </Alert>
-                                            )
-                                        })
-                                    } else {
-                                        console.log("paid successfully");
-                                    }
-                                }
-                            )
+                            createSolBox(props.walletState.wallet);
                     }}>
                         Add 20 Messages
                     </Button>
