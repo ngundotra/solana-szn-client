@@ -32,7 +32,11 @@ export async function signInWithSollet(state: AppState, setState: (arg0: Object)
 
     checkForInbox(wallet).then(
         (solBoxes: Array<SolBox>) => {
-            console.log(`Found ${solBoxes.length} solboxes belonging to ${wallet.publicKey}`);
+            if (solBoxes === undefined) {
+                console.log("[checkForInbox]No solboxes were found")
+                return;
+            }
+            console.log(`[checkForInbox]Found ${solBoxes.length} solboxes belonging to ${wallet.publicKey}`);
             setState({
                 walletState: newState.walletState,
                 sendState: newState.sendState,

@@ -13,12 +13,14 @@ import {
 } from "@chakra-ui/react";
 import { SendMessageTab } from "./SendMessageTab";
 import { ReadMessageTab } from "./ReadMessageTab";
+import { SolState } from "./SPAEntry";
 
 export type EmailUIProps = {
     textMessage: string,
     handleMessageChange: any,
     recipientAddress: string,
     handleRecipientChange: any,
+    solState: SolState
 }
 
 export function EmailUI(props: EmailUIProps) {
@@ -45,6 +47,7 @@ export function EmailUI(props: EmailUIProps) {
                                 handleMessageChange={props.handleMessageChange}
                                 recipientAddress={props.recipientAddress}
                                 handleRecipientChange={props.handleRecipientChange}
+                                solState={props.solState}
                                 // or just {...props}
                             />
                         </Collapse>

@@ -39,7 +39,7 @@ function isAccount(accountOrPublicKey: any): boolean {
 }
 
 /**
- * 64-bit value
+ * 32-bit value
  */
  export class u32 extends BN {
     /**
@@ -115,8 +115,19 @@ export const SolBoxLayout: typeof BufferLayout.Structure = BufferLayout.struct([
 ]);
 
 export function decodeSolBoxState(buffer: Buffer): SolBox {
-    let state = SolBoxLayout.decode(buffer);
-    return state;
+    let state: typeof SolBoxLayout = SolBoxLayout.decode(buffer);
+    console.log(state.numSpots);
+    console.log(state.numInUse);
+    console.log(state.isInitialiized);
+    return {
+        owner: new PublicKey(state.owner),
+        nextBox: new PublicKey(state.nextBox),
+        prevBox: new PublicKey(state.prevBox),
+        numSpots: state.numSpots,
+        numInUse: state.numInUse,
+        isInitialized: state.isInitialized !== 0,
+        messageSlots: Array<PublicKey>()
+    };
 }
 
 export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
@@ -166,6 +177,16 @@ export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
     await connection.confirmTransaction(txid);
 
     return solBoxAccount.publicKey;
+}
+
+export function getNumberOfFreeSlots(solBoxes: Array<SolBox>): number {
+    let numFree: Array<number> = solBoxes.map((solBox: SolBox) => solBox.numSpots);
+    console.log(`[getNumberOfFreeSlots]Found spots: ${numFree}`);
+    var total = 0;
+    numFree.forEach((num) => {
+        total += num;
+    });
+    return total;
 }
 
 export function createInitSolBoxInstruction(

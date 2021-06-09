@@ -22,13 +22,15 @@ export type AppState = {
         wallet: Wallet,
         balance: number,
     },
-    solState: {
-        inboxes: Array<SolBox>,
-    }
+    solState: SolState,
     sendState: {
         textMessage: string,
         recipientAddress: string,
     }
+}
+
+export type SolState = {
+    solBoxes: Array<SolBox>,
 }
 
 export function SPAEntry() {
@@ -38,7 +40,7 @@ export function SPAEntry() {
         recipientAddress: "",
     },
     solState: {
-        inboxes: Array<SolBox>(),
+        solBoxes: Array<SolBox>(),
     },
     walletState: { 
         wallet: null,
@@ -100,6 +102,7 @@ export function SPAEntry() {
                 handleMessageChange={handleMessage}
                 recipientAddress={appState.sendState.recipientAddress}
                 handleRecipientChange={handleRecipientChange}
+                solState={appState.solState}
             />
         </Box>
     </Box>

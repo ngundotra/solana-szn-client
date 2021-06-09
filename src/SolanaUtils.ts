@@ -15,7 +15,7 @@ import {
 import Wallet from '@project-serum/sol-wallet-adapter';
 import { AppState } from "./SPAEntry";
 import {
-    createSolBox,
+    SolBox,
     decodeSolBoxState
 } from './Sol2SolInstructions';
 
@@ -36,7 +36,7 @@ export async function checkForEmailAddress(address: string): Promise<boolean> {
     }
 }
 
-export async function checkForInbox(wallet: Wallet): Promise<Array<PublicKey>> {
+export async function checkForInbox(wallet: Wallet): Promise<Array<SolBox>> {
     let solBoxIds = await filterSolBoxesFor(wallet.publicKey);
     // if (solBoxIds.length < 1) {
     //     let inboxAddress = await createSolBox(wallet);
@@ -48,7 +48,7 @@ export async function checkForInbox(wallet: Wallet): Promise<Array<PublicKey>> {
     //     return [];
     // }
     console.log(`[checkForInbox]Found ${solBoxIds.length} inboxes for ${wallet.publicKey}`);
-    return solBoxIds.map((ledgerData: LedgerAccountData) => ledgerData.pubkey);
+    return solBoxIds.map((ledgerData: LedgerAccountData) => decodeSolBoxState(ledgerData.account.data));
 }
 
 type LedgerAccountData = {
@@ -65,7 +65,7 @@ async function filterSolBoxesFor(pubkey: PublicKey): Promise<Array<LedgerAccount
         (accountData: LedgerAccountData, index: number) => {
             let accountInfo = accountData.account;
             let solBoxState = decodeSolBoxState(accountInfo.data);
-            let solBoxOwner: PublicKey = new PublicKey(solBoxState.owner);
+            let solBoxOwner: PublicKey = solBoxState.owner;
             console.log(`[decoding]Solbox has owner: ${solBoxOwner}`);
             return (solBoxOwner.equals(pubkey));
         }

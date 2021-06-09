@@ -11,12 +11,16 @@ import {
 } from "@chakra-ui/react";
 import { RecipientBox } from "./RecipientBox";
 import { payForMessage, payForSolBox } from "./SolanaUtils";
+import { SolBox, getNumberOfFreeSlots } from "./Sol2SolInstructions";
 
 type SendMessageTabProps = {
     textMessage: string,
     handleMessageChange: any,
     recipientAddress: string,
     handleRecipientChange: any,
+    solState: {
+        solBoxes: Array<SolBox>,
+    }
 }
 
 // estimatedFee: number,
@@ -79,7 +83,49 @@ export function SendMessageTab(props: SendMessageTabProps) {
                                 }
                             )
                     }}>
-                        Pay
+                        Pay & Send
+                    </Button>
+                </HStack>
+            </Container>
+            <Container>
+                <HStack marginLeft="-12px" marginRight="-12px">
+                    <Text fontSize="sm" align="left" color="gray.500" flex="1" >
+                        S◎L messages left: {getNumberOfFreeSlots(props.solState.solBoxes)}
+                    </Text>
+                    <Button 
+                        rounded="lg" 
+                        size="sm"
+                        onClick={() => {
+                            payForMessage(props.textMessage, props.recipientAddress).then(
+                                (success) => {
+                                    if (!success) {
+                                        toast({
+                                            position: "top",
+                                            isClosable: true,
+                                            render: () => (
+                                                <Alert rounded="lg" bg="red.400">
+                                                    <Container>
+                                                    <HStack>
+                                                        <Text>No solBox configured</Text>
+                                                        <Button 
+                                                            rounded="xl" 
+                                                            justifySelf="flex-end"
+                                                            onClick={()=>payForSolBox}
+                                                        >
+                                                            Fix
+                                                        </Button>
+                                                    </HStack>
+                                                    </Container>
+                                                </Alert>
+                                            )
+                                        })
+                                    } else {
+                                        console.log("paid successfully");
+                                    }
+                                }
+                            )
+                    }}>
+                        Add 20 Messages
                     </Button>
                 </HStack>
             </Container>
