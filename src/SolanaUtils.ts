@@ -115,7 +115,7 @@ export async function payForSolBox() {
     return new Keypair();
 }
 
-export async function getProgramInfo(connection: Connection): Promise<AccountInfo> {
+export async function getProgramInfo(connection: Connection): Promise<AccountInfo<Buffer>> {
     // Taken from deployment log
     const programInfo = await connection.getAccountInfo(ProgramPubkey);
     if (programInfo === null) {

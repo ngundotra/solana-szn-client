@@ -95,9 +95,9 @@ export type SolBox = {
     /// Where to go looking for more messages
     prevBox: PublicKey,
     /// How many messages this box stores
-    numSpots: u32,
+    numSpots: number,
     /// How many messages have been used
-    numInUse: u32,
+    numInUse: number,
     /// Has been initialized?
     isInitialized: boolean,
     /// The message pubkeys (const # only 20)
@@ -180,7 +180,7 @@ export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
 }
 
 export function getNumberOfFreeSlots(solBoxes: Array<SolBox>): number {
-    let numFree: Array<number> = solBoxes.map((solBox: SolBox) => solBox.numSpots);
+    let numFree = solBoxes.map((solBox: SolBox) => solBox.numSpots);
     console.log(`[getNumberOfFreeSlots]Found spots: ${numFree}`);
     var total = 0;
     numFree.forEach((num) => {
