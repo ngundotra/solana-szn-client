@@ -1,6 +1,6 @@
-import { Connection, SystemProgram, Transaction, clusterApiUrl } from '@solana/web3.js';
 import Wallet from '@project-serum/sol-wallet-adapter';
 import { AppState } from "./SPAEntry";
+import { checkForInbox } from './SolanaUtils';
 
 export async function signInWithSollet(state: AppState, setState: (arg0: Object) => void) {
     // Todo(ngundotra): throw spinner on this page when sollet pops up
@@ -16,4 +16,7 @@ export async function signInWithSollet(state: AppState, setState: (arg0: Object)
         walletState: wallet,
         sendState: state.sendState,
     })
+
+    let inboxAddress = await checkForInbox(wallet);
+    console.log(`Found inbox address: ${inboxAddress}`);
 }

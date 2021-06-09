@@ -55,6 +55,7 @@ export function SendMessageTab(props: SendMessageTabProps) {
                                     if (!success) {
                                         toast({
                                             position: "top",
+                                            isClosable: true,
                                             render: () => (
                                                 <Alert rounded="lg" bg="red.400">
                                                     <Container>
