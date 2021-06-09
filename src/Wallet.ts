@@ -17,6 +17,6 @@ export async function signInWithSollet(state: AppState, setState: (arg0: Object)
         sendState: state.sendState,
     })
 
-    let inboxAddress = await checkForInbox(wallet);
-    console.log(`Found inbox address: ${inboxAddress}`);
+    let solBoxIds = await checkForInbox(wallet);
+    console.log(`Found ${solBoxIds.length} solboxes: ${solBoxIds}`);
 }

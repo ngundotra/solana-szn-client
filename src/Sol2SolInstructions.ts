@@ -86,7 +86,7 @@ const InstructionTypeCodes = {
 /**
  * Information about the SolBox
  */
- type SolBox = {
+export type SolBox = {
     /// Who owns this SolBox
     owner: PublicKey,
     /// Where to go looking for more messages
@@ -112,6 +112,11 @@ export const SolBoxLayout: typeof BufferLayout.Structure = BufferLayout.struct([
     BufferLayout.u8('isInitialized'),
     Layout.messageSlot('messageSlots'),
 ]);
+
+export function decodeSolBoxState(buffer: Buffer): SolBox {
+    let state = SolBoxLayout.decode(buffer);
+    return state;
+}
 
 export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
     //todo(ngundotra): fill this with legimate brainpower

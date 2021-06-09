@@ -16,6 +16,7 @@ import Wallet from '@project-serum/sol-wallet-adapter';
 import { AppState } from "./SPAEntry";
 import {
     createSolBox,
+    decodeSolBoxState
 } from './Sol2SolInstructions';
 
 const programId = "9K6veQjPEMQfEkT3mvMkMQupG7Wp7cFMj1g47eqYNpNd";
@@ -35,19 +36,19 @@ export async function checkForEmailAddress(address: string): Promise<boolean> {
     }
 }
 
-export async function checkForInbox(wallet: Wallet): Promise<PublicKey> {
-    let accounts = filterSolBoxesFor(wallet.publicKey);
-    if (accounts.length < 1) {
+export async function checkForInbox(wallet: Wallet): Promise<Array<PublicKey>> {
+    let solBoxIds = await filterSolBoxesFor(wallet.publicKey);
+    if (solBoxIds.length < 1) {
         let inboxAddress = await createSolBox(wallet);
         if (inboxAddress != wallet.publicKey) {
             console.log(`[checkForInbox]Created new solbox for ${wallet.publicKey} @ ${inboxAddress}`);
-        } else {
-            console.log(`[checkForInbox]Failed to create solbox for ${wallet.publicKey}`);
+            return [inboxAddress];
         }
-        return inboxAddress;
+        console.log(`[checkForInbox]Failed to create solbox for ${wallet.publicKey}`);
+        return [];
     }
-    console.log(`[checkForInbox]No solbox was attemped or found for ${wallet.publicKey}`);
-    return wallet.publicKey;
+    console.log(`[checkForInbox]Found ${solBoxIds.length} inboxes for ${wallet.publicKey}`);
+    return solBoxIds.map((ledgerData: LedgerAccountData) => ledgerData.pubkey);
 }
 
 type LedgerAccountData = {
@@ -55,13 +56,18 @@ type LedgerAccountData = {
     account: AccountInfo<Buffer>
 }
 
-async function filterSolBoxesFor(pubkey: PublicKey): Array<AccountInfo> {
+async function filterSolBoxesFor(pubkey: PublicKey): Promise<Array<LedgerAccountData>> {
     let connection = getDevConnection();
     let accounts = await connection.getProgramAccounts(ProgramPubkey);
     console.log("Found accounts associated with programId: ", accounts);
+    console.log(`[decoding]Looking for solbox with owner: ${pubkey}`);
     let solBoxes = accounts.filter(
         (accountData: LedgerAccountData, index: number) => {
             let accountInfo = accountData.account;
+            let solBoxState = decodeSolBoxState(accountInfo.data);
+            let solBoxOwner: PublicKey = new PublicKey(solBoxState.owner);
+            console.log(`[decoding]Solbox has owner: ${solBoxOwner}`);
+            return (solBoxOwner.equals(pubkey));
         }
     )
     return solBoxes;
