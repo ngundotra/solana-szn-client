@@ -15,15 +15,19 @@ import { EmailUI, EmailUIProps } from "./EmailUI";
 import { SolanaWallet } from "./SolanaWallet";
 import { Wallet } from "@project-serum/sol-wallet-adapter";
 import { signInWithSollet } from "./Wallet";
-import { SolBox } from "./Sol2SolInstructions";
+import { getMinBalanceForMessage, SolBox } from "./Sol2SolInstructions";
+import { updateExternalModuleReference } from "typescript";
 
 export type AppState = {
     walletState: WalletState,
     solState: SolState,
-    sendState: {
-        textMessage: string,
-        recipientAddress: string,
-    }
+    sendState: SendState
+}
+
+export type SendState = {
+    textMessage: string,
+    recipientAddress: string,
+    estimatedSolFee: number,
 }
 
 export type WalletState = {
@@ -40,6 +44,7 @@ export function SPAEntry() {
     sendState: {
         textMessage: "",
         recipientAddress: "",
+        estimatedSolFee: 0,
     },
     solState: {
         solBoxes: Array<SolBox>(),
@@ -55,10 +60,26 @@ export function SPAEntry() {
         sendState: {
             textMessage: e.target.value,
             recipientAddress: appState.sendState.recipientAddress,
+            estimatedSolFee: appState.sendState.estimatedSolFee,
         },
         solState: appState.solState,
         walletState: appState.walletState,
     }
+    getMinBalanceForMessage(e.target.value).then(
+        (estimatedFee: number) => {
+            console.log("Yeehaw")
+            const updatedFeeState = {
+                sendState: {
+                    textMessage: newState.sendState.textMessage,
+                    recipientAddress: appState.sendState.recipientAddress,
+                    estimatedSolFee: estimatedFee,
+                },
+                solState: appState.solState,
+                walletState: appState.walletState,
+            };
+            setAppState(updatedFeeState);
+        }
+    )
     setAppState(newState)
   }
 
@@ -67,11 +88,21 @@ export function SPAEntry() {
         sendState: {
             textMessage: appState.sendState.textMessage,
             recipientAddress: e.target.value,
+            estimatedSolFee: appState.sendState.estimatedSolFee,
         },
         solState: appState.solState,
         walletState: appState.walletState,
     }
     setAppState(newState)
+  }
+
+  const handleSolStateChange = (solState: SolState) => {
+    const newState: AppState = {
+        solState: solState,
+        sendState: appState.sendState,
+        walletState: appState.walletState,
+    }
+    setAppState(newState);
   }
 
   const attachWallet = () => signInWithSollet(appState, setAppState);
@@ -100,11 +131,11 @@ export function SPAEntry() {
         </Box>
         <Box marginTop="50px">
             <EmailUI 
-                textMessage={appState.sendState.textMessage} 
                 handleMessageChange={handleMessage}
-                recipientAddress={appState.sendState.recipientAddress}
                 handleRecipientChange={handleRecipientChange}
+                handleSolStateChange={handleSolStateChange}
                 solState={appState.solState}
+                sendState={appState.sendState}
                 walletState={appState.walletState}
             />
         </Box>

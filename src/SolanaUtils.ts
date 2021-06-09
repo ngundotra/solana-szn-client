@@ -21,6 +21,7 @@ import {
 
 const programId = "9K6veQjPEMQfEkT3mvMkMQupG7Wp7cFMj1g47eqYNpNd";
 export const ProgramPubkey = new PublicKey("9K6veQjPEMQfEkT3mvMkMQupG7Wp7cFMj1g47eqYNpNd");
+const devConnection = new Connection(clusterApiUrl('devnet'));
 
 export async function checkForEmailAddress(address: string): Promise<boolean> {
     try {
@@ -98,8 +99,7 @@ export async function getProgramInfo(connection: Connection): Promise<AccountInf
 }
 
 export function getDevConnection(): Connection {
-    let cluster = 'devnet';
-    return new Connection(clusterApiUrl(cluster));
+    return devConnection;
 }
 
 function getCookie(key: string): string {

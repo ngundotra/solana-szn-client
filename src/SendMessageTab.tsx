@@ -10,17 +10,18 @@ import {
     useToast,
 } from "@chakra-ui/react";
 import { RecipientBox } from "./RecipientBox";
-import { payForMessage } from "./SolanaUtils";
-import { createSolBox, getNumberOfFreeSlots } from "./Sol2SolInstructions";
-import {SolState, WalletState } from "./SPAEntry";
+import { checkForInbox, payForMessage } from "./SolanaUtils";
+import { createSolBox, getNumberOfFreeSlots, SolBox } from "./Sol2SolInstructions";
+import { SolState, WalletState, SendState } from "./SPAEntry";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 type SendMessageTabProps = {
-    textMessage: string,
     handleMessageChange: any,
-    recipientAddress: string,
     handleRecipientChange: any,
+    handleSolStateChange: any,
     solState: SolState,
     walletState: WalletState,
+    sendState: SendState,
 }
 
 // estimatedFee: number,
@@ -34,7 +35,7 @@ export function SendMessageTab(props: SendMessageTabProps) {
     return  (
         <VStack spacing={4}>
             <RecipientBox 
-                recipientAddress={props.recipientAddress}
+                recipientAddress={props.sendState.recipientAddress}
                 handleRecipientChange={props.handleRecipientChange}
             />
             <Textarea 
@@ -42,19 +43,19 @@ export function SendMessageTab(props: SendMessageTabProps) {
                 placeholder="m e s s a g e"
                 size="md"
                 resize="vertical"
-                value={props.textMessage}
+                value={props.sendState.textMessage}
                 onChange={props.handleMessageChange}
             />
             <Container>
                 <HStack marginLeft="-12px" marginRight="-12px">
                     <Text fontSize="sm" align="left" color="gray.500" flex="1" >
-                        Estimated Fee: {props.textMessage.length} fee + {1} commission SOL
+                        Estimated Fee: {(props.sendState.estimatedSolFee / LAMPORTS_PER_SOL).toFixed(9)} S◎L (~{(props.sendState.estimatedSolFee / LAMPORTS_PER_SOL*40).toFixed(2)} USD)
                     </Text>
                     <Button 
                         rounded="lg" 
                         size="sm"
                         onClick={() => {
-                            payForMessage(props.textMessage, props.recipientAddress).then(
+                            payForMessage(props.sendState.textMessage, props.sendState.recipientAddress).then(
                                 (success) => {
                                     if (!success) {
                                         toast({
@@ -68,7 +69,7 @@ export function SendMessageTab(props: SendMessageTabProps) {
                                                         <Button 
                                                             rounded="xl" 
                                                             justifySelf="flex-end"
-                                                            onClick={()=>payForSolBox}
+                                                            onClick={()=>console.log("Todo[ngundotra]Pay for message...")}
                                                         >
                                                             Fix
                                                         </Button>
@@ -96,7 +97,16 @@ export function SendMessageTab(props: SendMessageTabProps) {
                         rounded="lg" 
                         size="sm"
                         onClick={() => {
-                            createSolBox(props.walletState.wallet);
+                            createSolBox(props.walletState.wallet).then(
+                                () => {
+                                    checkForInbox(props.walletState.wallet).then(
+                                        (solBoxes: Array<SolBox>) => {
+                                            console.log("Completed checking for inboxes!")
+                                            props.handleSolStateChange({solBoxes: solBoxes});
+                                        },
+                                    )
+                                }
+                            );
                     }}>
                         Add 20 Messages
                     </Button>

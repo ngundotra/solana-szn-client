@@ -13,15 +13,15 @@ import {
 } from "@chakra-ui/react";
 import { SendMessageTab } from "./SendMessageTab";
 import { ReadMessageTab } from "./ReadMessageTab";
-import { SolState, WalletState } from "./SPAEntry";
+import { SolState, WalletState, SendState } from "./SPAEntry";
 
 export type EmailUIProps = {
-    textMessage: string,
     handleMessageChange: any,
-    recipientAddress: string,
     handleRecipientChange: any,
-    solState: SolState
+    handleSolStateChange: any,
+    solState: SolState,
     walletState: WalletState,
+    sendState: SendState,
 }
 
 export function EmailUI(props: EmailUIProps) {
@@ -44,11 +44,11 @@ export function EmailUI(props: EmailUIProps) {
                     <TabPanel>
                         <Collapse animateOpacity={true} in={sendOpen}>
                             <SendMessageTab
-                                textMessage={props.textMessage}
                                 handleMessageChange={props.handleMessageChange}
-                                recipientAddress={props.recipientAddress}
                                 handleRecipientChange={props.handleRecipientChange}
+                                handleSolStateChange={props.handleSolStateChange}
                                 solState={props.solState}
+                                sendState={props.sendState}
                                 walletState={props.walletState}
                                 // or just {...props}
                             />
