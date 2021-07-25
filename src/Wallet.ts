@@ -1,7 +1,7 @@
 import Wallet from '@project-serum/sol-wallet-adapter';
 import { AppState } from "./SPAEntry";
 import { checkForInbox, getDevConnection } from './SolanaUtils';
-import SolBox from './Sol2SolInstructions';
+import { SolBox } from './Sol2SolInstructions';
 
 export async function signInWithSollet(state: AppState, setState: (arg0: Object) => void) {
     // Todo(ngundotra): throw spinner on this page when sollet pops up

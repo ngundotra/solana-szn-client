@@ -20,7 +20,7 @@ import {
 } from './Sol2SolInstructions';
 
 const programId = "9K6veQjPEMQfEkT3mvMkMQupG7Wp7cFMj1g47eqYNpNd";
-export const ProgramPubkey = new PublicKey("9K6veQjPEMQfEkT3mvMkMQupG7Wp7cFMj1g47eqYNpNd");
+export const ProgramPubkey = new PublicKey(programId);
 const devConnection = new Connection(clusterApiUrl('devnet'));
 
 export async function checkForEmailAddress(address: string): Promise<boolean> {
@@ -49,7 +49,7 @@ export async function checkForInbox(wallet: Wallet): Promise<Array<SolBox>> {
     //     return [];
     // }
     console.log(`[checkForInbox]Found ${solBoxIds.length} inboxes for ${wallet.publicKey}`);
-    let possibleSolBoxes = solBoxIds.map((ledgerData: LedgerAccountData) => decodeSolBoxState(ledgerData.account.data));
+    let possibleSolBoxes: Array<SolBox | undefined> = solBoxIds.map((ledgerData: LedgerAccountData) => decodeSolBoxState(ledgerData.account.data));
     return possibleSolBoxes.filter((solBox) => solBox !== undefined);
 }
 

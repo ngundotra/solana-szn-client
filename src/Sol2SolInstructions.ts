@@ -2,7 +2,8 @@
 import {Buffer} from 'buffer';
 import assert from 'assert';
 import BN from 'bn.js';
-import * as BufferLayout from 'buffer-layout';
+import * as BufferLayout from '@solana/buffer-layout';
+import * as Layout from './Layout';
 import {
     Keypair,
     PublicKey,
@@ -22,21 +23,10 @@ import {
     ProgramPubkey,
     getDevConnection,
 } from './SolanaUtils';
-import * as Layout from './Layout';
-// import * as Layout from './layout';
-
-/**
- * Unfortunately, BufferLayout.encode uses an `instanceof` check for `Buffer`
- * which fails when using `publicKey.toBuffer()` directly because the bundled `Buffer`
- * class in `@solana/web3.js` is different from the bundled `Buffer` class in this package
- */
-function pubkeyToBuffer(publicKey: PublicKey): typeof Buffer {
-    return Buffer.from(publicKey.toBuffer());
-}
-
-function isAccount(accountOrPublicKey: any): boolean {
-    return 'publicKey' in accountOrPublicKey;
-}
+import {
+    pubkeyToBuffer,
+    createWriteMessageInstructionData
+} from './InstructionUtils';
 
 /**
  * 32-bit value
@@ -103,8 +93,8 @@ export type SolBox = {
     /// The message pubkeys (const # only 20)
     messageSlots: Array<PublicKey>,
 };
-
-export const SolBoxLayout: typeof BufferLayout.Structure = BufferLayout.struct([
+// typeof BufferLayout.Structure
+export const SolBoxLayout = BufferLayout.struct([
     Layout.publicKey('owner'),
     Layout.publicKey('nextBox'),
     Layout.publicKey('prevBox'),
@@ -128,23 +118,28 @@ export const SolBoxLayout: typeof BufferLayout.Structure = BufferLayout.struct([
     message: string,
 };
 
-export const FixedSolMessageLayout: typeof BufferLayout.Structure = BufferLayout.struct([
+export const FixedSolMessageLayout: BufferLayout.Structure = BufferLayout.struct([
     Layout.publicKey('recipient'),
     Layout.publicKey('sender'),
     BufferLayout.u32('msgSize'),
 ]);
 
 export function decodeSolBoxState(buffer: Buffer): SolBox | undefined {
-    let tag = buffer[0];
-    console.log("[decode]Tag is: ", tag);
-    if (tag === 0) {
-        return undefined;
-    }
-    buffer = buffer.slice(1);
-    let state: typeof SolBoxLayout = SolBoxLayout.decode(buffer);
-    console.log(state.numSpots);
-    console.log(state.numInUse);
-    console.log(state.isInitialiized);
+    // let tag = new BufferLayout.u8(
+    //     [...buffer.slice(0,1)]
+    //     .reverse()
+    //     .map(i => `00${i.toString(16)}`.slice(-2))
+    //     .join(''),
+    //     16,);
+    // console.log("[decode]Tag is: ", tag);
+    // if (tag === 0) {
+    //     return undefined;
+    // }
+    // buffer = buffer.slice(1);
+    let state = SolBoxLayout.decode(buffer);
+    // console.log(state.numSpots);
+    // console.log(state.numInUse);
+    // console.log(state.isInitialiized);
     return {
         owner: new PublicKey(state.owner),
         nextBox: new PublicKey(state.nextBox),
@@ -158,7 +153,7 @@ export function decodeSolBoxState(buffer: Buffer): SolBox | undefined {
 
 async function getMinBalanceForSolBox(): Promise<number> {
     return await getDevConnection().getMinimumBalanceForRentExemption(
-        SolBoxLayout.span,
+        SolBoxLayout.span + 1,
     );
 }
 
@@ -169,7 +164,7 @@ export async function getMinBalanceForMessage(message: string): Promise<number> 
         return cachedMinBalanceForMessageLength.get(message.length)!;
     }
     let newBalance = await getDevConnection().getMinimumBalanceForRentExemption(
-        FixedSolMessageLayout.span + message.length
+        getMessageStateSpan(message),
     );
     cachedMinBalanceForMessageLength.set(message.length, newBalance);
     return newBalance;
@@ -181,7 +176,9 @@ export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
     console.log(`balance needed is: ~${(balanceNeeded / LAMPORTS_PER_SOL)* 40} USD`);
     const accountInfo = await connection.getAccountInfo(wallet.publicKey);
     console.log("Found walletInfo: ", accountInfo);
-    if (accountInfo?.lamports < balanceNeeded) {
+    if (!accountInfo || accountInfo === undefined) {
+        console.log("Cannot continue, pubkey address lacks corresponding AccountInfo");
+    } else if (accountInfo!.lamports < balanceNeeded) {
         console.log("Cannot continue... insufficient balance");
         return wallet.publicKey;
     } else {
@@ -219,6 +216,63 @@ export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
     await connection.confirmTransaction(txid);
 
     return solBoxAccount.publicKey;
+}
+
+function getMessageStateSpan(message: string): number {
+    return FixedSolMessageLayout.span + message.length + 1;
+}
+
+export async function createNewMessage(
+    wallet: Wallet, 
+    recipient: PublicKey, 
+    solBoxPubkey: PublicKey,
+    message: string,
+): Promise<PublicKey> {
+    const connection = getDevConnection();
+    const balanceNeeded = await getMinBalanceForMessage(message);
+    console.log(`balance needed is: ~${(balanceNeeded / LAMPORTS_PER_SOL)* 40} USD`);
+    const accountInfo = await connection.getAccountInfo(wallet.publicKey);
+    if (accountInfo?.lamports < balanceNeeded) {
+        console.log("Cannot continue... insufficient balance");
+        return wallet.publicKey;
+    } else {
+        console.log("Account has enough lamports to continue!");
+    }
+
+    const messageAccount = new Keypair();
+    const transaction = new Transaction();
+    transaction.add(
+        SystemProgram.createAccount({
+            fromPubkey: wallet.publicKey,
+            newAccountPubkey: messageAccount.publicKey,
+            lamports: balanceNeeded,
+            space: getMessageStateSpan(message),
+            programId: ProgramPubkey,
+        }),
+    );
+
+    transaction.add(
+        createWriteMessageInstruction(
+            ProgramPubkey,
+            wallet.publicKey,
+            recipient,
+            solBoxPubkey,
+            messageAccount.publicKey,
+            message,
+        )
+    );
+
+    console.log('[WriteMessage]Created transaction...');
+    let {blockhash} = await connection.getRecentBlockhash();
+    transaction.recentBlockhash = blockhash;
+    transaction.feePayer = wallet.publicKey;
+    transaction.sign(messageAccount);
+    let signed = await wallet.signTransaction(transaction);
+    // signed.sign(solBoxAccount);
+    let txid = await connection.sendRawTransaction(signed.serialize());
+    await connection.confirmTransaction(txid);
+
+    return messageAccount.publicKey;
 }
 
 export function getNumberOfFreeSlots(solBoxes: Array<SolBox>): number {
@@ -268,35 +322,33 @@ export function createInitSolBoxInstruction(
     });
 }
 
-// export function createWriteMessageInstruction(
-//     programId: PublicKey,
-//     owner: PublicKey,
-//     account: PublicKey,
-// ): TransactionInstruction {
-//     // const keys = [
-//     //     {pubkey: account, isSigner: true, isWritable: true},
-//     //     {pubkey: owner, isSigner: true, isWritable: true},
-//     //     {pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false},
-//     // ];
-//     // const dataLayout = BufferLayout.struct([
-//     //     BufferLayout.u8('instruction'),
-//     //     Layout.publicKey('owner'),
-//     //     BufferLayout.u32('numSpots'),
-//     //     Layout.publicKey('nextBox'),
-//     //     Layout.publicKey('prevBox'),
-//     // ]);
-//     // const data = Buffer.alloc(dataLayout.span);
-//     // dataLayout.encode(
-//     //     {
-//     //         instruction: 0,
+export function createWriteMessageInstruction(
+    programId: PublicKey,
+    owner: PublicKey,
+    recipient: PublicKey,
+    solBoxAccount: PublicKey,
+    messageAccount: PublicKey,
+    message: string,
+): TransactionInstruction {
+    const keys = [
+        {pubkey: messageAccount, isSigner: false, isWritable: true},
+        {pubkey: solBoxAccount, isSigner: false, isWritable: true},
+        {pubkey: owner, isSigner: false, isWritable: true},
+        {pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false},
+    ];
 
-//     //     },
-//     //     data,
-//     // );
+    const data = createWriteMessageInstructionData(
+        programId,
+        owner,
+        recipient,
+        solBoxAccount,
+        messageAccount,
+        message
+    );
 
-//     return new TransactionInstruction({
-//         keys,
-//         programId,
-//         data,
-//     });
-// }
+    return new TransactionInstruction({
+        keys,
+        programId,
+        data,
+    });
+}
