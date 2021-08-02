@@ -118,23 +118,22 @@ export const FixedSolMessageLayout: BufferLayout.Structure = BufferLayout.struct
 ]);
 
 export function decodeSolBoxState(buffer: Buffer): SolBox | undefined {
-    // let tag = new BufferLayout.u8(
-    //     [...buffer.slice(0,1)]
-    //     .reverse()
-    //     .map(i => `00${i.toString(16)}`.slice(-2))
-    //     .join(''),
-    //     16,);
-    // console.log("[decode]Tag is: ", tag);
-    // if (tag === 0) {
-    //     return undefined;
-    // }
-    // buffer = buffer.slice(1);
+    if (buffer.length < SolBoxLayout.span) {
+        console.log('buffer length is too small: ', buffer.length);
+        return undefined;
+    }
     let state = SolBoxLayout.decode(buffer);
-    // console.log(state.numSpots);
-    // console.log(state.numInUse);
-    // console.log(state.isInitialiized);
+    console.log(state.numSpots);
+    console.log(state.numInUse);
+    console.log(state.isInitialized);
+    console.log(`Tag is ${state.tag === 0 ? "true": "false"}`);
+    if (state.tag !== 0)
+    {
+        return undefined;
+    }
+    
     return {
-        owner: new PublicKey(bs58.encode(state.owner)),
+        owner: new PublicKey(state.owner),
         nextBox: new PublicKey(state.nextBox),
         prevBox: new PublicKey(state.prevBox),
         numSpots: state.numSpots,
@@ -188,7 +187,7 @@ export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
             fromPubkey: wallet.publicKey,
             newAccountPubkey: solBoxAccount.publicKey,
             lamports: balanceNeeded,
-            space: 746,     //SolBoxLayout.span,
+            space: SolBoxLayout.span,
             programId: ProgramPubkey,
         }),
     );

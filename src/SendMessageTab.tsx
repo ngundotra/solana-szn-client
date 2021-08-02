@@ -44,7 +44,7 @@ export function SendMessageTab(props: SendMessageTabProps) {
                 placeholder="m e s s a g e"
                 size="md"
                 resize="vertical"
-                value={props.sendState.textMessage}
+                // value={props.sendState.textMessage}
                 onChange={props.handleMessageChange}
             />
             <Container>

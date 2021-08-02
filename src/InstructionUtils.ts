@@ -3,6 +3,7 @@ import * as Layout from './Layout';
 import * as BufferLayout from "@solana/buffer-layout";
 
 export const SolBoxLayout = BufferLayout.struct([
+    BufferLayout.u8('tag'),
     Layout.publicKey('owner'),
     Layout.publicKey('nextBox'),
     Layout.publicKey('prevBox'),

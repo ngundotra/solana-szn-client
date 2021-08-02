@@ -11,7 +11,6 @@ import {
     SolBoxLayout,
 } from '../InstructionUtils';
 import { assert } from 'console';
-import bs58 from 'bs58';
 
 function testWriteMessageIx() {
     let programId = new Keypair().publicKey;
@@ -63,14 +62,12 @@ function testWriteMessageIx() {
 
 function testInitSolBoxIx() {
     console.log("SolBox span: ", SolBoxLayout.span);
+    let buff = Buffer.from(pubkeyToBuffer(new PublicKey("GZbQmKYYzwjP3nbdqRWPLn98ipAni9w5eXMGp7bmZbGB")));
+    let pk = new PublicKey(buff);
+    console.log(pk.toString());
 }
 
-function testSolBoxState() {
-    let ownerBytes = [0, 231, 56, 204, 7, 93, 211, 225, 175, 127, 20, 75, 205, 57, 53, 33, 60, 225, 63, 10, 30, 18, 34, 121, 135, 112, 14, 149, 246, 201, 138, 143];
-    let ownerKey = new PublicKey(bs58.encode(ownerBytes));
-    console.log('Key is:', ownerKey.toString());
-}
 
 // testWriteMessageIx();
-// testInitSolBoxIx();
-testSolBoxState();
+testInitSolBoxIx();
+// testSolBoxState();

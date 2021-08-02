@@ -13,11 +13,11 @@ import {
     useToast
 } from '@chakra-ui/react';
 import Wallet from '@project-serum/sol-wallet-adapter';
-import { AppState } from "./SPAEntry";
 import {
     SolBox,
     decodeSolBoxState
 } from './Sol2SolInstructions';
+import bs58 from 'bs58';
 
 // const programId = "9K6veQjPEMQfEkT3mvMkMQupG7Wp7cFMj1g47eqYNpNd";
 // const programId = "FzNnL8BVSrSXtkiUCMfsiZaCBp7PXNTBfjCXPftvQLGA";
@@ -65,6 +65,9 @@ async function filterSolBoxesFor(pubkey: PublicKey): Promise<Array<LedgerAccount
     let accounts = await connection.getProgramAccounts(ProgramPubkey);
     console.log("Found accounts associated with programId: ", accounts);
     console.log(`[decoding]Looking for solbox with owner: ${pubkey}`);
+
+    let bytes = bs58.decode(pubkey.toString());
+    console.log(`[debug]bs58 decoded: ${new PublicKey(bytes)}`);
     let solBoxes = accounts.filter(
         (accountData: LedgerAccountData, index: number) => {
             let accountInfo = accountData.account;
@@ -72,7 +75,7 @@ async function filterSolBoxesFor(pubkey: PublicKey): Promise<Array<LedgerAccount
                 let solBoxState = decodeSolBoxState(accountInfo.data);
                 if (solBoxState === undefined)
                     return false;
-                let solBoxOwner: PublicKey = new PublicKey(solBoxState.owner);
+                let solBoxOwner: PublicKey = solBoxState.owner;
                 console.log(`[decoding]Solbox has owner: ${solBoxOwner.toString()}`);
                 return (solBoxOwner.equals(pubkey));
             } catch (error) {
