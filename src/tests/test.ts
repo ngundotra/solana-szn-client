@@ -7,9 +7,11 @@ import { Keypair, PublicKey } from '@solana/web3.js';
 import * as Layout from '../Layout';
 import { 
     createWriteMessageInstructionData,
-    pubkeyToBuffer
+    pubkeyToBuffer,
+    SolBoxLayout,
 } from '../InstructionUtils';
 import { assert } from 'console';
+import bs58 from 'bs58';
 
 function testWriteMessageIx() {
     let programId = new Keypair().publicKey;
@@ -27,6 +29,9 @@ function testWriteMessageIx() {
         messagePubkey,
         msg,
     );
+    console.log("Data:\n", data.toString('hex').match(/../g)!.join(', 0x'), "\nDone.");
+    //Array.from(data).forEach(x => console.log(String(x).toString('hex')));
+    // console.log("Data bytes: ", Array.from(data));
     let dataLayout = Layout.getDataLayout();
     // console.log(dataLayout);
     let recreated = dataLayout.decode(data);
@@ -56,4 +61,16 @@ function testWriteMessageIx() {
     console.log("Got : ", recreatedString);
 }
 
-testWriteMessageIx();
+function testInitSolBoxIx() {
+    console.log("SolBox span: ", SolBoxLayout.span);
+}
+
+function testSolBoxState() {
+    let ownerBytes = [0, 231, 56, 204, 7, 93, 211, 225, 175, 127, 20, 75, 205, 57, 53, 33, 60, 225, 63, 10, 30, 18, 34, 121, 135, 112, 14, 149, 246, 201, 138, 143];
+    let ownerKey = new PublicKey(bs58.encode(ownerBytes));
+    console.log('Key is:', ownerKey.toString());
+}
+
+// testWriteMessageIx();
+// testInitSolBoxIx();
+testSolBoxState();

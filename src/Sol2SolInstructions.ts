@@ -25,8 +25,11 @@ import {
 } from './SolanaUtils';
 import {
     pubkeyToBuffer,
-    createWriteMessageInstructionData
+    createWriteMessageInstructionData,
+    SolBoxLayout,
 } from './InstructionUtils';
+import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript';
+import bs58 from 'bs58';
 
 /**
  * 32-bit value
@@ -93,16 +96,6 @@ export type SolBox = {
     /// The message pubkeys (const # only 20)
     messageSlots: Array<PublicKey>,
 };
-// typeof BufferLayout.Structure
-export const SolBoxLayout = BufferLayout.struct([
-    Layout.publicKey('owner'),
-    Layout.publicKey('nextBox'),
-    Layout.publicKey('prevBox'),
-    BufferLayout.u32('numSpots'),
-    BufferLayout.u32('numInUse'),
-    BufferLayout.u8('isInitialized'),
-    Layout.messageSlot('messageSlots'),
-]);
 
 /**
  * Information about the SolBox
@@ -141,7 +134,7 @@ export function decodeSolBoxState(buffer: Buffer): SolBox | undefined {
     // console.log(state.numInUse);
     // console.log(state.isInitialiized);
     return {
-        owner: new PublicKey(state.owner),
+        owner: new PublicKey(bs58.encode(state.owner)),
         nextBox: new PublicKey(state.nextBox),
         prevBox: new PublicKey(state.prevBox),
         numSpots: state.numSpots,
@@ -187,12 +180,15 @@ export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
 
     const solBoxAccount = new Keypair();
     const transaction = new Transaction();
+    // const hardcodedKey = new PublicKey("B766NZZoErqzL9SUGL4351Ca1y6tCjr1P7hiE7prbz3E");
+
+    console.log("[debug] Program Pubkey: ", ProgramPubkey.toString())
     transaction.add(
         SystemProgram.createAccount({
             fromPubkey: wallet.publicKey,
             newAccountPubkey: solBoxAccount.publicKey,
             lamports: balanceNeeded,
-            space: SolBoxLayout.span,
+            space: 746,     //SolBoxLayout.span,
             programId: ProgramPubkey,
         }),
     );
@@ -201,7 +197,7 @@ export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
         createInitSolBoxInstruction(
             ProgramPubkey,
             wallet.publicKey,
-            solBoxAccount.publicKey
+            solBoxAccount.publicKey,
         )
     );
 
@@ -211,9 +207,12 @@ export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
     transaction.feePayer = wallet.publicKey;
     transaction.sign(solBoxAccount);
     let signed = await wallet.signTransaction(transaction);
+
     // signed.sign(solBoxAccount);
     let txid = await connection.sendRawTransaction(signed.serialize());
     await connection.confirmTransaction(txid);
+
+    console.log("[InitSolBox]Completed!...", solBoxAccount.publicKey.toString());
 
     return solBoxAccount.publicKey;
 }
@@ -232,7 +231,10 @@ export async function createNewMessage(
     const balanceNeeded = await getMinBalanceForMessage(message);
     console.log(`balance needed is: ~${(balanceNeeded / LAMPORTS_PER_SOL)* 40} USD`);
     const accountInfo = await connection.getAccountInfo(wallet.publicKey);
-    if (accountInfo?.lamports < balanceNeeded) {
+
+    if (!accountInfo || accountInfo === undefined) {
+        throw new Error("no account info for given wallet pubkey");
+    } else if (accountInfo!.lamports < balanceNeeded) {
         console.log("Cannot continue... insufficient balance");
         return wallet.publicKey;
     } else {
@@ -267,10 +269,19 @@ export async function createNewMessage(
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = wallet.publicKey;
     transaction.sign(messageAccount);
+    // console.log("Program pubkey:", ProgramPubkey);
+    // console.log("")
+
     let signed = await wallet.signTransaction(transaction);
-    // signed.sign(solBoxAccount);
+    // signed.sign(solBoxPubkey);
     let txid = await connection.sendRawTransaction(signed.serialize());
     await connection.confirmTransaction(txid);
+
+    let messageAccountInfo = await connection.getAccountInfo(messageAccount.publicKey);
+    // console.log("Message account info: ", messageAccountInfo);
+    // console.log("programPubkey:", ProgramPubkey);
+    // console.log("messageAccountInfo.owner: ", messageAccountInfo!.owner);
+    // assert(messageAccountInfo!.owner.equals(ProgramPubkey));
 
     return messageAccount.publicKey;
 }
@@ -291,8 +302,8 @@ export function createInitSolBoxInstruction(
     solBoxAccount: PublicKey,
 ): TransactionInstruction {
     const keys = [
-        {pubkey: solBoxAccount, isSigner: true, isWritable: false},
-        {pubkey: owner, isSigner: false, isWritable: true},
+        {pubkey: solBoxAccount, isSigner: true, isWritable: true},
+        {pubkey: owner, isSigner: true, isWritable: true},
         {pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false},
     ];
     const dataLayout = BufferLayout.struct([
@@ -335,6 +346,7 @@ export function createWriteMessageInstruction(
         {pubkey: solBoxAccount, isSigner: false, isWritable: true},
         {pubkey: owner, isSigner: false, isWritable: true},
         {pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false},
+        {pubkey: SystemProgram.programId, isSigner: false, isWritable: false},
     ];
 
     const data = createWriteMessageInstructionData(

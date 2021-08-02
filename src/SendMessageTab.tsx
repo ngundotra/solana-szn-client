@@ -11,9 +11,9 @@ import {
 } from "@chakra-ui/react";
 import { RecipientBox } from "./RecipientBox";
 import { checkForInbox, payForMessage } from "./SolanaUtils";
-import { createSolBox, getNumberOfFreeSlots, SolBox } from "./Sol2SolInstructions";
+import { createSolBox, createNewMessage, getNumberOfFreeSlots, SolBox } from "./Sol2SolInstructions";
 import { SolState, WalletState, SendState } from "./SPAEntry";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 type SendMessageTabProps = {
     handleMessageChange: any,
@@ -37,6 +37,7 @@ export function SendMessageTab(props: SendMessageTabProps) {
             <RecipientBox 
                 recipientAddress={props.sendState.recipientAddress}
                 handleRecipientChange={props.handleRecipientChange}
+                walletAddress={props.walletState.wallet ? props.walletState.wallet.publicKey : ""}
             />
             <Textarea 
                 rounded="lg"
@@ -55,34 +56,38 @@ export function SendMessageTab(props: SendMessageTabProps) {
                         rounded="lg" 
                         size="sm"
                         onClick={() => {
-                            payForMessage(props.sendState.textMessage, props.sendState.recipientAddress).then(
-                                (success) => {
-                                    if (!success) {
-                                        toast({
-                                            position: "top",
-                                            isClosable: true,
-                                            render: () => (
-                                                <Alert rounded="lg" bg="red.400">
-                                                    <Container>
-                                                    <HStack>
-                                                        <Text>No solBox configured</Text>
-                                                        <Button 
-                                                            rounded="xl" 
-                                                            justifySelf="flex-end"
-                                                            onClick={()=>console.log("Todo[ngundotra]Pay for message...")}
-                                                        >
-                                                            Fix
-                                                        </Button>
-                                                    </HStack>
-                                                    </Container>
-                                                </Alert>
-                                            )
-                                        })
-                                    } else {
-                                        console.log("paid successfully");
-                                    }
-                                }
-                            )
+                            if (props.solState === undefined || props.solState.solBoxes.length === 0) {
+                                toast({
+                                    position: "top",
+                                    isClosable: true,
+                                    render: () => (
+                                        <Alert rounded="lg" bg="red.400">
+                                            <Text>No solBoxes configured. Please add below</Text>
+                                        </Alert>
+                                    )
+                                });
+                                return;
+                            }
+                            let recipientAddress = new PublicKey(props.sendState.recipientAddress);
+                            if (recipientAddress === undefined) {
+                                toast({
+                                    position: "top",
+                                    isClosable: true,
+                                    render: () => (
+                                        <Alert rounded="lg" bg="red.400">
+                                            <Text>Invalid recipient address, please enter another</Text>
+                                        </Alert>
+                                    )
+                                });
+                                return;
+                            }
+                            console.log("Starting to write message!");
+                            createNewMessage(
+                                props.walletState.wallet, 
+                                recipientAddress,
+                                props.solState.solBoxes[0].nextBox, // hack: maps to itself for now
+                                props.sendState.textMessage
+                            );
                     }}>
                         Pay & Send
                     </Button>

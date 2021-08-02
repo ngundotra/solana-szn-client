@@ -12,6 +12,7 @@ import { checkForEmailAddress } from "./SolanaUtils";
 type RecipientAddressProps = {
     recipientAddress: string,
     handleRecipientChange: any,
+    walletAddress: string,
 }
 
 export function RecipientBox(props: RecipientAddressProps) {
@@ -61,8 +62,9 @@ export function RecipientBox(props: RecipientAddressProps) {
             <Input
                 flex="1"
                 fontSize="sm"
-                placeholder="recipient address"
-                value={props.recipientAddress}
+                // placeholder="recipient address"
+                defaultValue={props.walletAddress}
+                // value={props.walletAddress ?? props.recipientAddress}
                 onChange={props.handleRecipientChange}
             /> 
         </InputGroup>

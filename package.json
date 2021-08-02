@@ -19,6 +19,7 @@
     "@types/react-dom": "^16.9.0",
     "@types/uint32": "^0.2.0",
     "bn.js": "^5.2.0",
+    "bs58": "^4.0.1",
     "buffer": "^6.0.3",
     "buffer-layout": "^1.2.1",
     "framer-motion": "^4.0.0",

@@ -19,7 +19,9 @@ import {
     decodeSolBoxState
 } from './Sol2SolInstructions';
 
-const programId = "9K6veQjPEMQfEkT3mvMkMQupG7Wp7cFMj1g47eqYNpNd";
+// const programId = "9K6veQjPEMQfEkT3mvMkMQupG7Wp7cFMj1g47eqYNpNd";
+// const programId = "FzNnL8BVSrSXtkiUCMfsiZaCBp7PXNTBfjCXPftvQLGA";
+const programId = "FzNnL8BVSrSXtkiUCMfsiZaCBp7PXNTBfjCXPftvQLGA"; 
 export const ProgramPubkey = new PublicKey(programId);
 const devConnection = new Connection(clusterApiUrl('devnet'));
 
@@ -66,10 +68,16 @@ async function filterSolBoxesFor(pubkey: PublicKey): Promise<Array<LedgerAccount
     let solBoxes = accounts.filter(
         (accountData: LedgerAccountData, index: number) => {
             let accountInfo = accountData.account;
-            let solBoxState = decodeSolBoxState(accountInfo.data);
-            let solBoxOwner: PublicKey = solBoxState.owner;
-            console.log(`[decoding]Solbox has owner: ${solBoxOwner}`);
-            return (solBoxOwner.equals(pubkey));
+            try {
+                let solBoxState = decodeSolBoxState(accountInfo.data);
+                if (solBoxState === undefined)
+                    return false;
+                let solBoxOwner: PublicKey = new PublicKey(solBoxState.owner);
+                console.log(`[decoding]Solbox has owner: ${solBoxOwner.toString()}`);
+                return (solBoxOwner.equals(pubkey));
+            } catch (error) {
+                return false;
+            }
         }
     )
     return solBoxes;
@@ -85,7 +93,6 @@ export async function payForMessage(message: string, toAddress: string): Promise
     } 
     return true;
 }
-
 
 export async function getProgramInfo(connection: Connection): Promise<AccountInfo<Buffer>> {
     // Taken from deployment log

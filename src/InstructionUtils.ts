@@ -1,5 +1,16 @@
 import { PublicKey } from "@solana/web3.js";
 import * as Layout from './Layout';
+import * as BufferLayout from "@solana/buffer-layout";
+
+export const SolBoxLayout = BufferLayout.struct([
+    Layout.publicKey('owner'),
+    Layout.publicKey('nextBox'),
+    Layout.publicKey('prevBox'),
+    BufferLayout.u32('numSpots'),
+    BufferLayout.u32('numInUse'),
+    BufferLayout.u8('isInitialized'),
+    Layout.messageSlot('messageSlots'),
+]);
 
 export function createWriteMessageInstructionData(
     programId: PublicKey,
