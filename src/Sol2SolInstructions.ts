@@ -12,11 +12,6 @@ import {
     TransactionInstruction,
     SYSVAR_RENT_PUBKEY,
     LAMPORTS_PER_SOL,
-    sendAndConfirmTransaction
-} from '@solana/web3.js';
-import type {
-    Commitment,
-    TransactionSignature
 } from '@solana/web3.js';
 import Wallet from '@project-serum/sol-wallet-adapter';
 import {
@@ -26,10 +21,7 @@ import {
 import {
     pubkeyToBuffer,
     createWriteMessageInstructionData,
-    SolBoxLayout,
 } from './InstructionUtils';
-import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript';
-import bs58 from 'bs58';
 
 /**
  * 32-bit value
@@ -101,13 +93,15 @@ export type SolBox = {
  * Information about the SolBox
  */
  export type SolMessage = {
+    /// What sort of account is this
+    tag: number,
     /// Who owns this SolBox
     recipient: PublicKey,
     /// Where to go looking for more messages
     sender: PublicKey,
     /// How long the rest of the message is
     msgSize: u32,
-    /// The message pubkeys (const # only 20)
+    /// The message 
     message: string,
 };
 
@@ -116,32 +110,6 @@ export const FixedSolMessageLayout: BufferLayout.Structure = BufferLayout.struct
     Layout.publicKey('sender'),
     BufferLayout.u32('msgSize'),
 ]);
-
-export function decodeSolBoxState(buffer: Buffer): SolBox | undefined {
-    if (buffer.length < SolBoxLayout.span) {
-        console.log('buffer length is too small: ', buffer.length);
-        return undefined;
-    }
-    let state = SolBoxLayout.decode(buffer);
-    console.log(state.numSpots);
-    console.log(state.numInUse);
-    console.log(state.isInitialized);
-    console.log(`Tag is ${state.tag === 0 ? "true": "false"}`);
-    if (state.tag !== 0)
-    {
-        return undefined;
-    }
-    
-    return {
-        owner: new PublicKey(state.owner),
-        nextBox: new PublicKey(state.nextBox),
-        prevBox: new PublicKey(state.prevBox),
-        numSpots: state.numSpots,
-        numInUse: state.numInUse,
-        isInitialized: state.isInitialized !== 0,
-        messageSlots: Array<PublicKey>()
-    };
-}
 
 async function getMinBalanceForSolBox(): Promise<number> {
     return await getDevConnection().getMinimumBalanceForRentExemption(
@@ -277,7 +245,7 @@ export async function createNewMessage(
     await connection.confirmTransaction(txid);
 
     let messageAccountInfo = await connection.getAccountInfo(messageAccount.publicKey);
-    // console.log("Message account info: ", messageAccountInfo);
+    console.log("Message account info: ", messageAccountInfo);
     // console.log("programPubkey:", ProgramPubkey);
     // console.log("messageAccountInfo.owner: ", messageAccountInfo!.owner);
     // assert(messageAccountInfo!.owner.equals(ProgramPubkey));

@@ -10,6 +10,7 @@ import {
     TabList,
     TabPanel,
     TabPanels,
+    useProps,
 } from "@chakra-ui/react";
 import { SendMessageTab } from "./SendMessageTab";
 import { ReadMessageTab } from "./ReadMessageTab";
@@ -56,7 +57,7 @@ export function EmailUI(props: EmailUIProps) {
                     </TabPanel>
                     <TabPanel>
                         <Collapse animateOpacity={true} in={readOpen}>
-                            <ReadMessageTab address="" />
+                            <ReadMessageTab address={props.walletState.wallet?.publicKey.toString() ?? ""} />
                         </Collapse>
                     </TabPanel>
                 </TabPanels>

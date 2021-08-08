@@ -22,7 +22,7 @@ export function createWriteMessageInstructionData(
     message: string,
 ): Buffer {
     // Todo(ngundotra): have a better way of allocating Buffer size 
-    const dataLayout = Layout.getDataLayout();
+    const dataLayout = Layout.getWriteMessageIxLayout();
     const data = Buffer.alloc(133 + message.length);
     // console.log("[writeMessageIxData]Buffer size is: ", 133 + message.length);
 

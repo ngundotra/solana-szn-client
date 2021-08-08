@@ -1,8 +1,3 @@
-// import {Buffer} from 'buffer';
-// import BN from 'bn.js';
-//import * as BufferLayout from '@solana/buffer-layout';
-// import {getDataLayout} from '../Layout';
-// const Layout = require('../Layout');
 import { Keypair, PublicKey } from '@solana/web3.js';
 import * as Layout from '../Layout';
 import { 
@@ -31,7 +26,7 @@ function testWriteMessageIx() {
     console.log("Data:\n", data.toString('hex').match(/../g)!.join(', 0x'), "\nDone.");
     //Array.from(data).forEach(x => console.log(String(x).toString('hex')));
     // console.log("Data bytes: ", Array.from(data));
-    let dataLayout = Layout.getDataLayout();
+    let dataLayout = Layout.getWriteMessageIxLayout();
     // console.log(dataLayout);
     let recreated = dataLayout.decode(data);
     let dec = new TextDecoder();

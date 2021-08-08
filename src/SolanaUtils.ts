@@ -15,9 +15,12 @@ import {
 import Wallet from '@project-serum/sol-wallet-adapter';
 import {
     SolBox,
-    decodeSolBoxState
+    SolMessage
 } from './Sol2SolInstructions';
-import bs58 from 'bs58';
+import {
+    SolBoxLayout
+} from './InstructionUtils';
+import { SolMessageLayout } from "./Layout";
 
 // const programId = "9K6veQjPEMQfEkT3mvMkMQupG7Wp7cFMj1g47eqYNpNd";
 // const programId = "FzNnL8BVSrSXtkiUCMfsiZaCBp7PXNTBfjCXPftvQLGA";
@@ -60,14 +63,39 @@ type LedgerAccountData = {
     account: AccountInfo<Buffer>
 }
 
+export function decodeSolBoxState(buffer: Buffer): SolBox | undefined {
+    if (buffer.length < SolBoxLayout.span) {
+        console.log('buffer length is too small: ', buffer.length);
+        return undefined;
+    }
+    let state = SolBoxLayout.decode(buffer);
+    console.log(state.numSpots);
+    console.log(state.numInUse);
+    console.log(state.isInitialized);
+    console.log(`Tag is ${state.tag === 0 ? "true": "false"}`);
+    if (state.tag !== 0)
+    {
+        return undefined;
+    }
+    
+    return {
+        owner: new PublicKey(state.owner),
+        nextBox: new PublicKey(state.nextBox),
+        prevBox: new PublicKey(state.prevBox),
+        numSpots: state.numSpots,
+        numInUse: state.numInUse,
+        isInitialized: state.isInitialized !== 0,
+        messageSlots: Array<PublicKey>()
+    };
+}
+
+
 async function filterSolBoxesFor(pubkey: PublicKey): Promise<Array<LedgerAccountData>> {
     let connection = getDevConnection();
     let accounts = await connection.getProgramAccounts(ProgramPubkey);
     console.log("Found accounts associated with programId: ", accounts);
     console.log(`[decoding]Looking for solbox with owner: ${pubkey}`);
 
-    let bytes = bs58.decode(pubkey.toString());
-    console.log(`[debug]bs58 decoded: ${new PublicKey(bytes)}`);
     let solBoxes = accounts.filter(
         (accountData: LedgerAccountData, index: number) => {
             let accountInfo = accountData.account;
@@ -84,6 +112,49 @@ async function filterSolBoxesFor(pubkey: PublicKey): Promise<Array<LedgerAccount
         }
     )
     return solBoxes;
+}
+
+function decodeSolMessage(data: Buffer): SolMessage | undefined {
+    let solMessageState = SolMessageLayout.decode(data.slice(1,))!;
+    return solMessageState;
+}
+
+export async function filterMessageDataForAddress(recipientAddress: String): Promise<Array<SolMessage>> {
+    if (recipientAddress.length == 0) {
+        console.log("[FilterData] Unable to resolve address:", recipientAddress);
+        return [];
+    }
+
+    let connection = getDevConnection();
+    let address = new PublicKey(recipientAddress);
+    let accounts = await connection.getProgramAccounts(ProgramPubkey);
+
+    console.log("[solMessage]Found accounts associated with programId: ", accounts);
+    console.log(`[solMessage]Looking for messageBox with owner: ${address}`);
+
+    let solMessages: Array<SolMessage> = []; 
+    accounts.forEach(
+        (accountData: LedgerAccountData, index: number) => {
+            let accountInfo = accountData.account;
+            try {
+                if (accountInfo.data[0] !== 1) {
+                    console.log("[solMessage]not message box- skipping");
+                    return false;
+                }
+
+                let solMessage = decodeSolMessage(accountInfo.data);
+                if (solMessage === undefined)
+                    return false;
+                let toAddress: PublicKey = new PublicKey(solMessage.recipient);
+                console.log(`[decoding]Solmessage has recipient: ${toAddress}`);
+                console.log(`[decoding]Solmessage is: ${solMessage.message}`);
+                solMessages.push(solMessage);
+            } catch (error) {
+                return false;
+            }
+        }
+    )
+    return solMessages;
 }
 
 export async function payForMessage(message: string, toAddress: string): Promise<boolean> {

@@ -48,7 +48,7 @@ export const messageBoxString = (property: string = 'messageBoxString') => {
     return msgBoxLayout;
 }
 
-export function getDataLayout(): BufferLayout.Layout {
+export function getWriteMessageIxLayout(): BufferLayout.Layout {
     const dataLayout = BufferLayout.struct([
         BufferLayout.u8('instruction'),
         publicKey('sender'),
@@ -61,3 +61,10 @@ export function getDataLayout(): BufferLayout.Layout {
     ]);
     return dataLayout;
 };
+
+export const SolMessageLayout: BufferLayout.Layout = BufferLayout.struct([
+    publicKey('sender'),
+    publicKey('recipient'),
+    BufferLayout.u32('msgSize'),
+    BufferLayout.blob(BufferLayout.offset(BufferLayout.u32(), -4), 'message')
+]);

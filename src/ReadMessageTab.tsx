@@ -15,9 +15,15 @@ import {
     Thead,
     Th,
     Tbody,
-    TableCaption,
 } from "@chakra-ui/react";
 import { RepeatIcon, SmallAddIcon } from "@chakra-ui/icons";
+import { filterMessageDataForAddress } from './SolanaUtils';
+import {
+    SolMessage
+} from './Sol2SolInstructions';
+import {
+    PublicKey
+} from '@solana/web3.js';
 
 type ReadMessageTabProps = {
     address: string, // idk, probably get with DOM?
@@ -29,33 +35,45 @@ type SolMessageFields = {
     timeSent: string,
 }
 
-export function ReadMessageTab(prop: ReadMessageTabProps) {
-    const messageData = [
-        { 
-            fromAddress: "0xRickAstley",
-            message: "Never going to give you up...",
-            timeSent: "Yesterday"
-        },
-        {
-            fromAddress: "0xDefinitelyRick",
-            message: "Never going to let you down...",
-            timeSent: "Yesterday"
-        },
-        {
-            fromAddress: "0xNotNoah",
-            message: "..or hurt you..",
-            timeSent: "Yesterday"
-        },
-    ];
+let solMessagesForWallet: Array<SolMessage> = [];
 
-    function renderMessageData(messages: Array<SolMessageFields>) {
+export function ReadMessageTab(prop: ReadMessageTabProps) {
+    let extraData = filterMessageDataForAddress(prop.address);
+    extraData.then(
+        (solMessages: SolMessage[]) => solMessagesForWallet = solMessages,
+    );
+    
+    const messageData: SolMessage[] = solMessagesForWallet;
+    
+    // messageData.then((value: LedgerAccountData[]) => renderMessageData(messages));
+    // const messageData = [
+    //     { 
+    //         fromAddress: "0xRickAstley",
+    //         message: "Never going to give you up...",
+    //         timeSent: "Yesterday"
+    //     },
+    //     {
+    //         fromAddress: "0xDefinitelyRick",
+    //         message: "Never going to let you down...",
+    //         timeSent: "Yesterday"
+    //     },
+    //     {
+    //         fromAddress: "0xNotNoah",
+    //         message: "..or hurt you..",
+    //         timeSent: "Yesterday"
+    //     },
+    // ];
+
+    function renderMessageData(messages: Array<SolMessage>) {
         return messages.map((solMessage, index) => {
-            const {fromAddress, message, timeSent} = solMessage;
+            const fromAddress = new PublicKey(solMessage.sender);
+            const message = new String(solMessage.message);
+            //const {fromAddress, message, timeSent} = solMessage;
             return (
                 <Tr key={index}>
-                    <Td>{fromAddress}</Td>
+                    <Td>{fromAddress.toString()}</Td>
                     <Td>{message}</Td>
-                    <Td>{timeSent}</Td>
+                    <Td>{"no time"}</Td>
                 </Tr>
             )
         })
