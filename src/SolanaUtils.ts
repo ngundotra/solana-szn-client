@@ -145,10 +145,12 @@ export async function filterMessageDataForAddress(recipientAddress: String): Pro
                 let solMessage = decodeSolMessage(accountInfo.data);
                 if (solMessage === undefined)
                     return false;
+                    
                 let toAddress: PublicKey = new PublicKey(solMessage.recipient);
                 console.log(`[decoding]Solmessage has recipient: ${toAddress}`);
                 console.log(`[decoding]Solmessage is: ${solMessage.message}`);
                 solMessages.push(solMessage);
+
             } catch (error) {
                 return false;
             }

@@ -31,7 +31,7 @@ export function EmailUI(props: EmailUIProps) {
     const sendOpen = (tabIndex === 0)
     const readOpen = (tabIndex === 1)
     return (
-        <Container size="container.md" borderWidth={1} p={3} rounded="xl">
+        <Container borderWidth={1} p={3} rounded="xl" minWidth="md">
             <Tabs 
                 variant="soft-rounded" 
                 colorScheme="orange"
