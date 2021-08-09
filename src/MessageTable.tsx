@@ -32,10 +32,15 @@ function renderMessageData(messages: Array<SolMessage>) {
     return messages.map((solMessage, index) => {
         const fromAddress = new PublicKey(solMessage.sender);
         const message = new String(solMessage.message);
-        //const {fromAddress, message, timeSent} = solMessage;
+
+        const fromAddressDisplay = 
+            fromAddress.toString().slice(0,8) 
+            + "..." 
+            + fromAddress.toString().slice(-8);
+
         return (
             <Tr key={index}>
-                <Td>{fromAddress.toString()}</Td>
+                <Td>{fromAddressDisplay}</Td>
                 <Td>{message}</Td>
                 <Td>{"no time"}</Td>
             </Tr>

@@ -47,7 +47,7 @@ export function EmailUI(props: EmailUIProps) {
                         <Tab>Send</Tab>
                         <Tab>Read</Tab>
                     </TabList>
-                    <TabPanels borderWidth={2} borderColor={"green"}> 
+                    <TabPanels>
                         <TabPanel>
                             <Collapse animateOpacity={true} in={sendOpen}>
                                 <SendMessageTab
