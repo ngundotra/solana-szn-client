@@ -45,7 +45,7 @@ function renderMessageData(messages: Array<SolMessage>) {
 
 export function MessageTable(props: MessageProps) {
     return (
-    <Table variant="striped">
+    <Table variant="striped"> 
         <Thead>
             <Tr>
                 <Th>From</Th>

@@ -9,6 +9,9 @@ import {
     Tabs,
     TabList,
     TabPanel,
+    HStack,
+    Spacer,
+    Flex,
     TabPanels,
     useProps,
 } from "@chakra-ui/react";
@@ -31,37 +34,42 @@ export function EmailUI(props: EmailUIProps) {
     const sendOpen = (tabIndex === 0)
     const readOpen = (tabIndex === 1)
     return (
-        <Container borderWidth={1} p={3} rounded="xl">
-            <Tabs 
-                variant="soft-rounded" 
-                colorScheme="orange"
-                onChange={(i) => setTabIndex(i)}
-            >
-                <TabList paddingX={4}>
-                    <Tab>Send</Tab>
-                    <Tab>Read</Tab>
-                </TabList>
-                <TabPanels>
-                    <TabPanel>
-                        <Collapse animateOpacity={true} in={sendOpen}>
-                            <SendMessageTab
-                                handleMessageChange={props.handleMessageChange}
-                                handleRecipientChange={props.handleRecipientChange}
-                                handleSolStateChange={props.handleSolStateChange}
-                                solState={props.solState}
-                                sendState={props.sendState}
-                                walletState={props.walletState}
-                                // or just {...props}
-                            />
-                        </Collapse>
-                    </TabPanel>
-                    <TabPanel>
-                        <Collapse animateOpacity={true} in={readOpen}>
-                            <ReadMessageTab address={props.walletState.wallet?.publicKey.toString() ?? ""} />
-                        </Collapse>
-                    </TabPanel>
-                </TabPanels>
-            </Tabs> 
-        </Container>
+        <HStack>
+            <Spacer />
+            <Flex borderWidth={1} p={3} rounded="xl">
+                <Tabs 
+                    variant="soft-rounded" 
+                    colorScheme="orange"
+                    onChange={(i) => setTabIndex(i)}
+                    minWidth={600}
+                >
+                    <TabList paddingX={4}> 
+                        <Tab>Send</Tab>
+                        <Tab>Read</Tab>
+                    </TabList>
+                    <TabPanels borderWidth={2} borderColor={"green"}> 
+                        <TabPanel>
+                            <Collapse animateOpacity={true} in={sendOpen}>
+                                <SendMessageTab
+                                    handleMessageChange={props.handleMessageChange}
+                                    handleRecipientChange={props.handleRecipientChange}
+                                    handleSolStateChange={props.handleSolStateChange}
+                                    solState={props.solState}
+                                    sendState={props.sendState}
+                                    walletState={props.walletState}
+                                    // or just {...props}
+                                />
+                            </Collapse>
+                        </TabPanel>
+                        <TabPanel>
+                            <Collapse animateOpacity={true} in={readOpen}> 
+                                <ReadMessageTab address={props.walletState.wallet?.publicKey.toString() ?? ""} />
+                            </Collapse>
+                        </TabPanel>
+                    </TabPanels>
+                </Tabs> 
+            </Flex>
+            <Spacer />
+        </HStack>
     )
 }

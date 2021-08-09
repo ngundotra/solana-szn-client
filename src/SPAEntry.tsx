@@ -129,7 +129,7 @@ export function SPAEntry() {
                 Secure messaging on the Solana blockchain
             </Text>
         </Box>
-        <Box marginTop="50px">
+        <Box marginTop="50px"> 
             <EmailUI 
                 handleMessageChange={handleMessage}
                 handleRecipientChange={handleRecipientChange}
@@ -139,6 +139,7 @@ export function SPAEntry() {
                 walletState={appState.walletState}
             />
         </Box>
+        <Box minHeight="20" />
     </Box>
   )
 }

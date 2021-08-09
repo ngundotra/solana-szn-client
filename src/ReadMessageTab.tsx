@@ -47,7 +47,7 @@ export function ReadMessageTab(prop: ReadMessageTabProps) {
     // const messageData = [];
      
     return (
-        <VStack spacing={4}>
+        <VStack spacing={4}> 
             <MessageTable messageData={messageData}/>
             <Spacer minHeight="20px"/>
             <Container>
