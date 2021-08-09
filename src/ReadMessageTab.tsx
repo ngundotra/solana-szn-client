@@ -24,6 +24,7 @@ import {
 import {
     MessageTable
 } from './MessageTable';
+import { useState } from "react";
 
 type ReadMessageTabProps = {
     address: string, // idk, probably get with DOM?
@@ -38,11 +39,12 @@ type SolMessageFields = {
 let solMessagesForWallet: Array<SolMessage> = [];
 
 export function ReadMessageTab(prop: ReadMessageTabProps) {
-    let extraData = filterMessageDataForAddress(prop.address);
+    const [messageData, setMessageData] = useState([])
+    let extraData = filterMessageDataForAddress(prop.address)
     extraData.then(
-        (solMessages: SolMessage[]) => solMessagesForWallet = solMessages,
-    );
-    const messageData: SolMessage[] = solMessagesForWallet;
+        (solMessages: SolMessage[]) => { if (messageData.length != solMessages.length) { setMessageData(solMessages) } },
+    )
+    // const messageData = [];
      
     return (
         <VStack spacing={4}>
