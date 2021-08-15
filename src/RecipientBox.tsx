@@ -31,22 +31,16 @@ export function RecipientBox(props: RecipientAddressProps) {
             toast({
                 position: "top",
                 isClosable: true,
-                render: () => (
-                    <Alert rounded="lg" bg="red.400" >
-                        Invalid address: {address}
-                    </Alert>
-                )
+                title: `Invalid recipient: ${address}`,
+                status: "warning",
             })
         } else {
             // throw good toast :)
             toast({
                 position: "top",
                 isClosable: true,
-                render: () => (
-                    <Alert rounded="lg" bg="green.200">
-                        You're good to go!
-                    </Alert>
-                )
+                title: "Address exists :)",
+                status: "success",
             })
         }
         console.log("Recipient address is: ", address);
