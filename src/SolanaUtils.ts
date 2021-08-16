@@ -26,7 +26,8 @@ import { SolMessageLayout } from "./Layout";
 // const programId = "FzNnL8BVSrSXtkiUCMfsiZaCBp7PXNTBfjCXPftvQLGA";
 const programId = "FzNnL8BVSrSXtkiUCMfsiZaCBp7PXNTBfjCXPftvQLGA"; 
 export const ProgramPubkey = new PublicKey(programId);
-const devConnection = new Connection(clusterApiUrl('devnet'));
+// const devConnection = new Connection(clusterApiUrl('devnet'));
+const devConnection = new Connection("http://127.0.0.1:8899");
 
 export async function checkForEmailAddress(address: string): Promise<boolean> {
     try {

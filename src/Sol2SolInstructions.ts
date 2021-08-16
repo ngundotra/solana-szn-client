@@ -21,6 +21,7 @@ import {
 import {
     pubkeyToBuffer,
     createWriteMessageInstructionData,
+    SolBoxLayout,
 } from './InstructionUtils';
 
 /**
@@ -193,6 +194,8 @@ export async function createNewMessage(
     recipient: PublicKey, 
     solBoxPubkey: PublicKey,
     message: string,
+    preConfirmationCallback: (txid: string) => void,
+    postConfirmationCallback: (txid: string) => void,
 ): Promise<PublicKey> {
     const connection = getDevConnection();
     const balanceNeeded = await getMinBalanceForMessage(message);
@@ -242,7 +245,9 @@ export async function createNewMessage(
     let signed = await wallet.signTransaction(transaction);
     // signed.sign(solBoxPubkey);
     let txid = await connection.sendRawTransaction(signed.serialize());
+    preConfirmationCallback(txid);
     await connection.confirmTransaction(txid);
+    postConfirmationCallback(txid);
 
     let messageAccountInfo = await connection.getAccountInfo(messageAccount.publicKey);
     console.log("Message account info: ", messageAccountInfo);

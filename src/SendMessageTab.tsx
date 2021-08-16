@@ -72,12 +72,9 @@ export function SendMessageTab(props: SendMessageTabProps) {
                             if (recipientAddress === undefined) {
                                 toast({
                                     position: "top",
-                                    isClosable: true,
-                                    render: () => (
-                                        <Alert rounded="lg" bg="red.400">
-                                            <Text>Invalid recipient address, please enter another</Text>
-                                        </Alert>
-                                    )
+                                    isClosable: false,
+                                    title: "Invalid recipient address",
+                                    status: "error",
                                 });
                                 return;
                             }
@@ -86,7 +83,25 @@ export function SendMessageTab(props: SendMessageTabProps) {
                                 props.walletState.wallet, 
                                 recipientAddress,
                                 props.solState.solBoxes[0].nextBox, // hack: maps to itself for now
-                                props.sendState.textMessage
+                                props.sendState.textMessage,
+                                (txid: string) => {
+                                    toast({
+                                        position: 'bottom-left',
+                                        isClosable: true,
+                                        title: `Sent tx: ${txid}`,
+                                        status: "info",
+                                        duration: 1000*90,
+                                    });
+                                },
+                                (txid) => {
+                                    toast({
+                                        position: 'bottom-left',
+                                        isClosable: true,
+                                        title: `Confirmed tx: ${txid}`,
+                                        status: "success",
+                                        duration: 1000*90,
+                                    });
+                                }
                             );
                     }}>
                         Pay & Send

@@ -1,7 +1,6 @@
 import * as React from "react"
 import {
     // Formatting / sizing
-    Container,
     // Animation
     Collapse,
     // Rendering tabs
@@ -13,7 +12,6 @@ import {
     Spacer,
     Flex,
     TabPanels,
-    useProps,
 } from "@chakra-ui/react";
 import { SendMessageTab } from "./SendMessageTab";
 import { ReadMessageTab } from "./ReadMessageTab";
