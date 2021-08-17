@@ -117,7 +117,20 @@ export function SendMessageTab(props: SendMessageTabProps) {
                         rounded="lg" 
                         size="sm"
                         onClick={() => {
-                            createSolBox(props.walletState.wallet).then(
+                            createSolBox(
+                                props.walletState.wallet,
+                                (txid: string) => toast({
+                                    title: "Confirmed transaction",
+
+                                }),
+                                (reason: any) => toast({
+                                    title: new String(reason),
+                                    position: 'bottom-left',
+                                    status: 'error',
+                                    isClosable: true,
+                                    duration: 1000 * 90, 
+                                })
+                            ).then(
                                 () => {
                                     checkForInbox(props.walletState.wallet).then(
                                         (solBoxes: Array<SolBox>) => {

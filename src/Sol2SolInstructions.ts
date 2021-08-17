@@ -23,6 +23,7 @@ import {
     createWriteMessageInstructionData,
     SolBoxLayout,
 } from './InstructionUtils';
+import { setUncaughtExceptionCaptureCallback } from 'process';
 
 /**
  * 32-bit value
@@ -131,7 +132,11 @@ export async function getMinBalanceForMessage(message: string): Promise<number> 
     return newBalance;
 }
 
-export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
+export async function createSolBox(
+    wallet: Wallet, 
+    sentCallback: (txid: string) => void, 
+    rejectionCallback: (reason: any) => void
+): Promise<void> {
     const connection = getDevConnection();
     const balanceNeeded = await getMinBalanceForSolBox();
     console.log(`balance needed is: ~${(balanceNeeded / LAMPORTS_PER_SOL)* 40} USD`);
@@ -174,15 +179,30 @@ export async function createSolBox(wallet: Wallet): Promise<PublicKey> {
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = wallet.publicKey;
     transaction.sign(solBoxAccount);
-    let signed = await wallet.signTransaction(transaction);
-
-    // signed.sign(solBoxAccount);
-    let txid = await connection.sendRawTransaction(signed.serialize());
-    await connection.confirmTransaction(txid);
-
-    console.log("[InitSolBox]Completed!...", solBoxAccount.publicKey.toString());
-
-    return solBoxAccount.publicKey;
+    // let signed = await wallet.signTransaction(transaction);
+    wallet.signTransaction(transaction).then(
+        (signed: any) => {
+            connection.sendRawTransaction(signed.serialize()).then(
+                (txid: string) => {
+                    connection.confirmTransaction(txid).then(
+                        () => {
+                            console.log("[InitSolBox]Completed!...", solBoxAccount.publicKey.toString());
+                            sentCallback(txid);
+                        },
+                        (reason: any) => {
+                            rejectionCallback(reason);
+                        }
+                    );
+                },
+                (reason: any) => {
+                    rejectionCallback(reason);
+                }
+            );
+        },
+        (reason: any) => {
+            rejectionCallback(reason);
+        }
+    );
 }
 
 function getMessageStateSpan(message: string): number {
