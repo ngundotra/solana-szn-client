@@ -1,10 +1,10 @@
 import { Keypair, PublicKey } from '@solana/web3.js';
-import * as Layout from '../Layout';
+import * as Layout from '../utils/Layout';
 import { 
     createWriteMessageInstructionData,
     pubkeyToBuffer,
     SolBoxLayout,
-} from '../InstructionUtils';
+} from '../utils/InstructionUtils';
 import { assert } from 'console';
 
 function testWriteMessageIx() {
