@@ -14,6 +14,7 @@ import { checkForInbox } from "../utils/SolanaUtils";
 import { createSolBox, createNewMessage, getNumberOfFreeSlots, SolBox } from "../utils/Sol2SolInstructions";
 import { SolState, WalletState, SendState } from "./SPAEntry";
 import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { trimTxId, showTransactionSent, showTransactionSucceeded, showTransactionFailed } from "./TransactionDialog";
 
 type SendMessageTabProps = {
     handleMessageChange: any,
@@ -85,22 +86,10 @@ export function SendMessageTab(props: SendMessageTabProps) {
                                 props.solState.solBoxes[0].nextBox, // hack: maps to itself for now
                                 props.sendState.textMessage,
                                 (txid: string) => {
-                                    toast({
-                                        position: 'bottom-left',
-                                        isClosable: true,
-                                        title: `Sent tx: ${txid}`,
-                                        status: "info",
-                                        duration: 1000*90,
-                                    });
+                                    showTransactionSent(toast, null, txid);
                                 },
                                 (txid) => {
-                                    toast({
-                                        position: 'bottom-left',
-                                        isClosable: true,
-                                        title: `Confirmed tx: ${txid}`,
-                                        status: "success",
-                                        duration: 1000*90,
-                                    });
+                                    showTransactionSucceeded(toast, null, txid);
                                 }
                             );
                     }}>
@@ -123,14 +112,9 @@ export function SendMessageTab(props: SendMessageTabProps) {
                                     title: "Confirmed transaction",
 
                                 }),
-                                (reason: any) => toast({
-                                    title: new String(reason),
-                                    position: 'bottom-left',
-                                    status: 'error',
-                                    isClosable: true,
-                                    duration: 1000 * 90, 
-                                })
-                            ).then(
+                                (reason: any) => 
+                                    showTransactionFailed(toast, reason as string, null)
+                                ).then(
                                 () => {
                                     checkForInbox(props.walletState.wallet).then(
                                         (solBoxes: Array<SolBox>) => {
