@@ -7,6 +7,7 @@ import {
     AtSignIcon
 } from "@chakra-ui/icons";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { LocalKeypairSignInButton } from "./LocalKeypairSignInButton";
 
 type WalletProps = {
     handleClick: any,
@@ -18,6 +19,7 @@ export function SolanaWallet(props: WalletProps) {
         <HStack>
             <Text>{(props.walletBalance >= 0) ? `Balance: ${props.walletBalance / LAMPORTS_PER_SOL} S◎L` : "click to connect wallet ->"  }</Text>
             <Button onClick={props.handleClick} size="sm"><AtSignIcon size="md"/></Button>
+            <LocalKeypairSignInButton/>
         </HStack>
     )
 }

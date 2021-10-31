@@ -23,7 +23,6 @@ import {
 import { SolMessageLayout } from "./Layout";
 
 // const programId = "9K6veQjPEMQfEkT3mvMkMQupG7Wp7cFMj1g47eqYNpNd";
-// const programId = "FzNnL8BVSrSXtkiUCMfsiZaCBp7PXNTBfjCXPftvQLGA";
 const programId = "FzNnL8BVSrSXtkiUCMfsiZaCBp7PXNTBfjCXPftvQLGA"; 
 export const ProgramPubkey = new PublicKey(programId);
 // const devConnection = new Connection(clusterApiUrl('devnet'));
