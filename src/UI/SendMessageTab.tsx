@@ -28,8 +28,66 @@ export function SendMessageTab(props: SendMessageTabProps) {
     const [textMessage, setTextMessage] = React.useState<string>();
     const [recipientAddress, setRecipientAddress] = React.useState<string>();
     const [estimatedFee, setEstimatedFee] = React.useState<number>(0);
-
     const toast = useToast();
+
+    function writeMessage() {
+        if (props.solState === undefined || props.solState.solBoxes.length === 0) {
+            toast({
+                position: "top",
+                isClosable: true,
+                render: () => (
+                    <Alert rounded="lg" bg="red.400">
+                        <Text>No solBoxes configured. Please add below</Text>
+                    </Alert>
+                )
+            });
+            return;
+        }
+        let recipientKey = new PublicKey(recipientAddress ?? "");
+        if (recipientKey === undefined) {
+            toast({
+                position: "top",
+                isClosable: false,
+                title: "Invalid recipient address",
+                status: "error",
+            });
+            return;
+        }
+        console.log("Starting to write message!");
+        createNewMessage(
+            props.walletState.wallet, 
+            recipientKey,
+            props.solState.solBoxes[0].nextBox, // hack: maps to itself for now
+            textMessage ?? "",
+            (txid: string) => {
+                showTransactionSent(toast, null, txid);
+            },
+            (txid) => {
+                showTransactionSucceeded(toast, null, txid);
+            }
+        );
+    }
+
+    function addSolBox() {
+        createSolBox(
+            props.walletState.wallet,
+            (txid: string) => toast({
+                title: "Confirmed transaction",
+
+            }),
+            (reason: any) => 
+                showTransactionFailed(toast, reason as string, null)
+            ).then(
+            () => {
+                checkForInbox(props.walletState.wallet).then(
+                    (solBoxes: Array<SolBox>) => {
+                        console.log("Completed checking for inboxes!")
+                        props.handleSolStateChange({solBoxes: solBoxes});
+                    },
+                )
+            }
+        );
+    }
 
     useEffect(() => {
         getMinBalanceForMessage(textMessage ?? "").then(
@@ -39,7 +97,6 @@ export function SendMessageTab(props: SendMessageTabProps) {
             }
         )
     }, [textMessage]);
-    
 
     return  (
         <VStack spacing={4}>
@@ -63,43 +120,7 @@ export function SendMessageTab(props: SendMessageTabProps) {
                     <Button 
                         rounded="lg" 
                         size="sm"
-                        onClick={() => {
-                            if (props.solState === undefined || props.solState.solBoxes.length === 0) {
-                                toast({
-                                    position: "top",
-                                    isClosable: true,
-                                    render: () => (
-                                        <Alert rounded="lg" bg="red.400">
-                                            <Text>No solBoxes configured. Please add below</Text>
-                                        </Alert>
-                                    )
-                                });
-                                return;
-                            }
-                            let recipientKey = new PublicKey(recipientAddress ?? "");
-                            if (recipientKey === undefined) {
-                                toast({
-                                    position: "top",
-                                    isClosable: false,
-                                    title: "Invalid recipient address",
-                                    status: "error",
-                                });
-                                return;
-                            }
-                            console.log("Starting to write message!");
-                            createNewMessage(
-                                props.walletState.wallet, 
-                                recipientKey,
-                                props.solState.solBoxes[0].nextBox, // hack: maps to itself for now
-                                textMessage ?? "",
-                                (txid: string) => {
-                                    showTransactionSent(toast, null, txid);
-                                },
-                                (txid) => {
-                                    showTransactionSucceeded(toast, null, txid);
-                                }
-                            );
-                    }}>
+                        onClick={() => writeMessage()}>
                         Pay & Send
                     </Button>
                 </HStack>
@@ -112,26 +133,7 @@ export function SendMessageTab(props: SendMessageTabProps) {
                     <Button 
                         rounded="lg" 
                         size="sm"
-                        onClick={() => {
-                            createSolBox(
-                                props.walletState.wallet,
-                                (txid: string) => toast({
-                                    title: "Confirmed transaction",
-
-                                }),
-                                (reason: any) => 
-                                    showTransactionFailed(toast, reason as string, null)
-                                ).then(
-                                () => {
-                                    checkForInbox(props.walletState.wallet).then(
-                                        (solBoxes: Array<SolBox>) => {
-                                            console.log("Completed checking for inboxes!")
-                                            props.handleSolStateChange({solBoxes: solBoxes});
-                                        },
-                                    )
-                                }
-                            );
-                    }}>
+                        onClick={() => addSolBox()}>
                         Add 20 Messages
                     </Button>
                 </HStack>
