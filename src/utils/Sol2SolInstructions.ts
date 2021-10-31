@@ -125,11 +125,17 @@ export async function getMinBalanceForMessage(message: string): Promise<number> 
     if (cachedMinBalanceForMessageLength.has(message.length)) {
         return cachedMinBalanceForMessageLength.get(message.length)!;
     }
-    let newBalance = await getDevConnection().getMinimumBalanceForRentExemption(
-        getMessageStateSpan(message),
-    );
-    cachedMinBalanceForMessageLength.set(message.length, newBalance);
-    return newBalance;
+
+    try {
+        let newBalance = await getDevConnection().getMinimumBalanceForRentExemption(
+            getMessageStateSpan(message),
+        );
+        cachedMinBalanceForMessageLength.set(message.length, newBalance);
+        return newBalance;
+    } catch {
+        console.error("Unable to fetch min balance for rent exemption");
+        return 0;
+    }
 }
 
 export async function createSolBox(

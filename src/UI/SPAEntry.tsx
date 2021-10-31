@@ -5,9 +5,6 @@ import {
     Text,
     HStack,
     Spacer,
-    // VStack,
-    // Code,
-    // Link,
     Heading,
 } from "@chakra-ui/react";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
@@ -16,18 +13,6 @@ import { SolanaWallet } from "./SolanaWallet";
 import { Wallet } from "@project-serum/sol-wallet-adapter";
 import { signInWithSollet } from "../utils/Wallet";
 import { getMinBalanceForMessage, SolBox } from "../utils/Sol2SolInstructions";
-
-export type AppState = {
-    walletState: WalletState,
-    solState: SolState,
-    sendState: SendState
-}
-
-export type SendState = {
-    textMessage: string,
-    recipientAddress: string,
-    estimatedSolFee: number,
-}
 
 export type WalletState = {
     wallet: Wallet,
@@ -46,40 +31,6 @@ export function SPAEntry() {
     const [solState, setSolState] = React.useState({
         solBoxes: Array<SolBox>(),
     });
-    const [sendState, setSendState] = React.useState({
-        textMessage: "",
-        recipientAddress: "",
-        estimatedSolFee: 0,
-    });
-
-    const handleMessage = (e) => {
-        const newState: SendState = {
-            textMessage: e.target.value,
-            recipientAddress: sendState.recipientAddress,
-            estimatedSolFee: sendState.estimatedSolFee,
-        }
-        getMinBalanceForMessage(e.target.value).then(
-            (estimatedFee: number) => {
-                console.log("Checking min balance for message");
-                const updatedFeeState = {
-                    textMessage: newState.textMessage,
-                    recipientAddress: sendState.recipientAddress,
-                    estimatedSolFee: estimatedFee,
-                };
-                setSendState(updatedFeeState);
-            }
-        )
-        setSendState(newState)
-    }
-
-    const handleRecipientChange = (e) => {
-        const newState: SendState = {
-            textMessage: sendState.textMessage,
-            recipientAddress: e.target.value,
-            estimatedSolFee: sendState.estimatedSolFee,
-        }
-        setSendState(newState);
-    }
 
     const attachWallet = () => signInWithSollet(walletState, setWalletState);
 
@@ -107,11 +58,8 @@ export function SPAEntry() {
             </Box>
             <Box marginTop="50px"> 
                 <EmailUI 
-                    handleMessageChange={handleMessage}
-                    handleRecipientChange={handleRecipientChange}
                     handleSolStateChange={setSolState}
                     solState={solState}
-                    sendState={sendState}
                     walletState={walletState}
                 />
             </Box>

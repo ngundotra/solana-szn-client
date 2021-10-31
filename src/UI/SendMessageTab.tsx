@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import { 
     Textarea,
     VStack,
@@ -15,29 +15,37 @@ import { createSolBox, createNewMessage, getNumberOfFreeSlots, SolBox } from "..
 import { SolState, WalletState, SendState } from "./SPAEntry";
 import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { trimTxId, showTransactionSent, showTransactionSucceeded, showTransactionFailed } from "./TransactionDialog";
+import { getMinBalanceForMessage } from "../utils/Sol2SolInstructions";
+
 
 type SendMessageTabProps = {
-    handleMessageChange: any,
-    handleRecipientChange: any,
     handleSolStateChange: any,
     solState: SolState,
     walletState: WalletState,
-    sendState: SendState,
 }
 
-// estimatedFee: number,
-// estimatedCommission: number,
-// estimatedFeeUSD: number,
-// estimatedCommissionUSD: number,
-
 export function SendMessageTab(props: SendMessageTabProps) {
+    const [textMessage, setTextMessage] = React.useState<string>();
+    const [recipientAddress, setRecipientAddress] = React.useState<string>();
+    const [estimatedFee, setEstimatedFee] = React.useState<number>(0);
+
     const toast = useToast();
+
+    useEffect(() => {
+        getMinBalanceForMessage(textMessage ?? "").then(
+            (estimatedFee: number) => {
+                console.log("Retrieved min balance for message:", estimatedFee);
+                setEstimatedFee(estimatedFee);
+            }
+        )
+    }, [textMessage]);
+    
 
     return  (
         <VStack spacing={4}>
             <RecipientBox 
-                recipientAddress={props.sendState.recipientAddress}
-                handleRecipientChange={props.handleRecipientChange}
+                recipientAddress={recipientAddress ?? ""}
+                handleRecipientChange={(e) => {setRecipientAddress(e.target.value)}}
                 walletAddress={props.walletState.wallet ? props.walletState.wallet.publicKey : ""}
             />
             <Textarea 
@@ -45,13 +53,12 @@ export function SendMessageTab(props: SendMessageTabProps) {
                 placeholder="m e s s a g e"
                 size="md"
                 resize="vertical"
-                // value={props.sendState.textMessage}
-                onChange={props.handleMessageChange}
+                onChange={(e) => {setTextMessage(e.target.value)}}
             />
             <Container>
                 <HStack marginLeft="-12px" marginRight="-12px">
                     <Text fontSize="sm" align="left" color="gray.500" flex="1" >
-                        Estimated Fee: {(props.sendState.estimatedSolFee / LAMPORTS_PER_SOL).toFixed(9)} S◎L (~{(props.sendState.estimatedSolFee / LAMPORTS_PER_SOL*40).toFixed(2)} USD)
+                        Estimated Fee: {(estimatedFee / LAMPORTS_PER_SOL).toFixed(9)} S◎L (~{(estimatedFee / LAMPORTS_PER_SOL*40).toFixed(2)} USD)
                     </Text>
                     <Button 
                         rounded="lg" 
@@ -69,8 +76,8 @@ export function SendMessageTab(props: SendMessageTabProps) {
                                 });
                                 return;
                             }
-                            let recipientAddress = new PublicKey(props.sendState.recipientAddress);
-                            if (recipientAddress === undefined) {
+                            let recipientKey = new PublicKey(recipientAddress ?? "");
+                            if (recipientKey === undefined) {
                                 toast({
                                     position: "top",
                                     isClosable: false,
@@ -82,9 +89,9 @@ export function SendMessageTab(props: SendMessageTabProps) {
                             console.log("Starting to write message!");
                             createNewMessage(
                                 props.walletState.wallet, 
-                                recipientAddress,
+                                recipientKey,
                                 props.solState.solBoxes[0].nextBox, // hack: maps to itself for now
-                                props.sendState.textMessage,
+                                textMessage ?? "",
                                 (txid: string) => {
                                     showTransactionSent(toast, null, txid);
                                 },
