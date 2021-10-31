@@ -1,9 +1,9 @@
 import Wallet from '@project-serum/sol-wallet-adapter';
-import { AppState } from "./SPAEntry";
+import { WalletState } from "./SPAEntry";
 import { checkForInbox, getDevConnection } from './SolanaUtils';
 import { SolBox } from './Sol2SolInstructions';
 
-export async function signInWithSollet(state: AppState, setState: (arg0: Object) => void) {
+export async function signInWithSollet(state: WalletState, setState: (arg0: WalletState) => void) {
     // Todo(ngundotra): throw spinner on this page when sollet pops up
 
     let providerUrl = 'https://www.sollet.io';
@@ -21,29 +21,20 @@ export async function signInWithSollet(state: AppState, setState: (arg0: Object)
     }
 
     let newState = {
-        walletState: {
-            wallet: wallet,
-            balance: balance,
-        },
-        solState: state.solState,
-        sendState: state.sendState,
+        wallet: wallet,
+        balance: balance
     };
     setState(newState);
 
-    checkForInbox(wallet).then(
-        (solBoxes: Array<SolBox>) => {
-            if (solBoxes === undefined) {
-                console.log("[checkForInbox]No solboxes were found")
-                return;
-            }
-            console.log(`[checkForInbox]Found ${solBoxes.length} solboxes belonging to ${wallet.publicKey}`);
-            setState({
-                walletState: newState.walletState,
-                sendState: newState.sendState,
-                solState: {
-                    solBoxes: solBoxes,
-                }
-            });
-        }
-    );
+    // todo(ngundotra): remove this entirely
+    // checkForInbox(wallet).then(
+    //     (solBoxes: Array<SolBox>) => {
+    //         if (solBoxes === undefined) {
+    //             console.log("[checkForInbox]No solboxes were found")
+    //             return;
+    //         }
+    //         console.log(`[checkForInbox]Found ${solBoxes.length} solboxes belonging to ${wallet.publicKey}`);
+    //         setState(newState);
+    //     }
+    // );
 }

@@ -39,106 +39,83 @@ export type SolState = {
 }
 
 export function SPAEntry() {
-  const [appState, setAppState] = React.useState({
-    sendState: {
+    const [walletState, setWalletState] = React.useState({
+        wallet: null,
+        balance: -1,
+    });
+    const [solState, setSolState] = React.useState({
+        solBoxes: Array<SolBox>(),
+    });
+    const [sendState, setSendState] = React.useState({
         textMessage: "",
         recipientAddress: "",
         estimatedSolFee: 0,
-    },
-    solState: {
-        solBoxes: Array<SolBox>(),
-    },
-    walletState: { 
-        wallet: null,
-        balance: -1,
-    },
-  })
+    });
 
-  const handleMessage = (e) => {
-    const newState: AppState = {
-        sendState: {
+    const handleMessage = (e) => {
+        const newState: SendState = {
             textMessage: e.target.value,
-            recipientAddress: appState.sendState.recipientAddress,
-            estimatedSolFee: appState.sendState.estimatedSolFee,
-        },
-        solState: appState.solState,
-        walletState: appState.walletState,
-    }
-    getMinBalanceForMessage(e.target.value).then(
-        (estimatedFee: number) => {
-            console.log("Yeehaw")
-            const updatedFeeState = {
-                sendState: {
-                    textMessage: newState.sendState.textMessage,
-                    recipientAddress: appState.sendState.recipientAddress,
-                    estimatedSolFee: estimatedFee,
-                },
-                solState: appState.solState,
-                walletState: appState.walletState,
-            };
-            setAppState(updatedFeeState);
+            recipientAddress: sendState.recipientAddress,
+            estimatedSolFee: sendState.estimatedSolFee,
         }
-    )
-    setAppState(newState)
-  }
+        getMinBalanceForMessage(e.target.value).then(
+            (estimatedFee: number) => {
+                console.log("Checking min balance for message");
+                const updatedFeeState = {
+                    textMessage: newState.textMessage,
+                    recipientAddress: sendState.recipientAddress,
+                    estimatedSolFee: estimatedFee,
+                };
+                setSendState(updatedFeeState);
+            }
+        )
+        setSendState(newState)
+    }
 
-  const handleRecipientChange = (e) => {
-    const newState: AppState = {
-        sendState: {
-            textMessage: appState.sendState.textMessage,
+    const handleRecipientChange = (e) => {
+        const newState: SendState = {
+            textMessage: sendState.textMessage,
             recipientAddress: e.target.value,
-            estimatedSolFee: appState.sendState.estimatedSolFee,
-        },
-        solState: appState.solState,
-        walletState: appState.walletState,
+            estimatedSolFee: sendState.estimatedSolFee,
+        }
+        setSendState(newState);
     }
-    setAppState(newState)
-  }
 
-  const handleSolStateChange = (solState: SolState) => {
-    const newState: AppState = {
-        solState: solState,
-        sendState: appState.sendState,
-        walletState: appState.walletState,
-    }
-    setAppState(newState);
-  }
+    const attachWallet = () => signInWithSollet(walletState, setWalletState);
 
-  const attachWallet = () => signInWithSollet(appState, setAppState);
-
-  return (
-    <Box textAlign="center">
-        <Box>
-            <HStack>
-                <Spacer />
+    return (
+        <Box textAlign="center">
+            <Box>
                 <HStack>
-                <SolanaWallet walletBalance={appState.walletState.balance} handleClick={attachWallet} />
-                <ColorModeSwitcher />
+                    <Spacer />
+                    <HStack>
+                    <SolanaWallet walletBalance={walletState.balance} handleClick={attachWallet} />
+                    <ColorModeSwitcher />
+                    </HStack>
+                    <Spacer />
                 </HStack>
-                <Spacer />
-            </HStack>
+            </Box>
+            <Box marginTop="100px">
+                <Heading size="4xl" justifySelf="top" marginBottom="-30px">
+                        S ◎ L 2 S ◎ L
+                </Heading>
+            </Box>
+            <Box marginTop="50px">
+                <Text fontSize="md">
+                    Secure messaging on the Solana blockchain
+                </Text>
+            </Box>
+            <Box marginTop="50px"> 
+                <EmailUI 
+                    handleMessageChange={handleMessage}
+                    handleRecipientChange={handleRecipientChange}
+                    handleSolStateChange={setSolState}
+                    solState={solState}
+                    sendState={sendState}
+                    walletState={walletState}
+                />
+            </Box>
+            <Box minHeight="20" />
         </Box>
-        <Box marginTop="100px">
-            <Heading size="4xl" justifySelf="top" marginBottom="-30px">
-                    S ◎ L 2 S ◎ L
-            </Heading>
-        </Box>
-        <Box marginTop="50px">
-            <Text fontSize="md">
-                Secure messaging on the Solana blockchain
-            </Text>
-        </Box>
-        <Box marginTop="50px"> 
-            <EmailUI 
-                handleMessageChange={handleMessage}
-                handleRecipientChange={handleRecipientChange}
-                handleSolStateChange={handleSolStateChange}
-                solState={appState.solState}
-                sendState={appState.sendState}
-                walletState={appState.walletState}
-            />
-        </Box>
-        <Box minHeight="20" />
-    </Box>
-  )
+    )
 }
