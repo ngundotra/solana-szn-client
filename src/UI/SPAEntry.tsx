@@ -5,6 +5,7 @@ import {
     Text,
     HStack,
     Spacer,
+    Button,
     Heading,
 } from "@chakra-ui/react";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
@@ -13,6 +14,11 @@ import { SolanaWallet } from "./SolanaWallet";
 import { Wallet } from "@project-serum/sol-wallet-adapter";
 import { signInWithSollet } from "../utils/Wallet";
 import { getMinBalanceForMessage, SolBox } from "../utils/Sol2SolInstructions";
+import { WalletDisconnectButton, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useWallet } from '@solana/wallet-adapter-react';
+
+// Default styles that can be overridden by your app
+require('@solana/wallet-adapter-react-ui/styles.css');
 
 export type WalletState = {
     wallet: Wallet,
@@ -33,6 +39,7 @@ export function SPAEntry() {
     });
 
     const attachWallet = () => signInWithSollet(walletState, setWalletState);
+    const { wallet } = useWallet();
 
     return (
         <Box textAlign="center">
@@ -40,8 +47,8 @@ export function SPAEntry() {
                 <HStack>
                     <Spacer />
                     <HStack>
-                    <SolanaWallet walletBalance={walletState.balance} handleClick={attachWallet} />
-                    <ColorModeSwitcher />
+                        <WalletMultiButton />
+                        <ColorModeSwitcher />
                     </HStack>
                     <Spacer />
                 </HStack>

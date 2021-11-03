@@ -2,6 +2,9 @@ import * as React from "react"
 import {
   ChakraProvider,
   theme,
+  Box,
+  HStack,
+  Spacer,
   ColorModeScript,
 } from "@chakra-ui/react";
 import { SPAEntry } from "./SPAEntry";
@@ -10,18 +13,21 @@ import {
 } from '@solana/wallet-adapter-wallets';
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { getClusterEndpoint } from '../utils/Cluster';
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 
 export function App(): React.ReactElement {
   const wallets = [getPhantomWallet()];
 
   return (
-  <ChakraProvider theme={theme}>
-      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-      <ConnectionProvider endpoint={getClusterEndpoint()}>
-        <WalletProvider wallets={wallets} autoConnect>
-          <SPAEntry />
-        </WalletProvider>
-      </ConnectionProvider>
-    </ChakraProvider>
+    <ConnectionProvider endpoint={getClusterEndpoint()}>
+      <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          <ChakraProvider theme={theme}>
+            <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+            <SPAEntry />
+          </ChakraProvider>
+        </WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
   )
 }
