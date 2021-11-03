@@ -12,7 +12,7 @@ import {
 import { RecipientBox } from "./RecipientBox";
 import { checkForInbox } from "../utils/SolanaUtils";
 import { createSolBox, createNewMessage, getNumberOfFreeSlots, SolBox } from "../utils/Sol2SolInstructions";
-import { SolState, WalletState, SendState } from "./SPAEntry";
+import { SolState, WalletState } from "./SPAEntry";
 import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { trimTxId, showTransactionSent, showTransactionSucceeded, showTransactionFailed } from "./TransactionDialog";
 import { getMinBalanceForMessage } from "../utils/Sol2SolInstructions";
